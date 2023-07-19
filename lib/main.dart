@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart'; // Importe o pacote
 
 import 'analytics_page.dart';
 import 'home_page.dart';
@@ -12,8 +13,12 @@ class HomeAplicacaoFinanceira extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: BottomMenu(),
+    return MaterialApp(
+      theme: ThemeData(
+        // Definir a fonte padrão como Roboto
+        textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
+      ),
+      home: const BottomMenu(),
     );
   }
 }
