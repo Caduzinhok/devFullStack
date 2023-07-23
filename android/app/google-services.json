@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "489434370331",
+    "project_id": "financehub-925f3",
+    "storage_bucket": "financehub-925f3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:489434370331:android:cd66ebd66ef005f26b03be",
+        "android_client_info": {
+          "package_name": "com.example.aplicacao_financeira"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "489434370331-o6700vd57144p2vbmffe6l48derm6j1n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1anL2mXMYc3GR2cxZKJ59pOmPFlk4e9c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "489434370331-o6700vd57144p2vbmffe6l48derm6j1n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "489434370331-2pivuoukpearsdbq9dtodmn9fbfgep6m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.aplicacaoFinanceira.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-class WalletWidget extends StatelessWidget {
-  const WalletWidget({super.key});
+class CategoryWidget extends StatelessWidget {
+  const CategoryWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +25,9 @@ class AddCategoryScreen extends StatefulWidget {
 }
 
 class _AddCategoryScreenState extends State<AddCategoryScreen> {
+
+  final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
+
   final TextEditingController _categoryController = TextEditingController();
   final List<Category> _categories = [];
 
@@ -38,11 +41,15 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
     String categoryName = _categoryController.text;
     if (categoryName.isNotEmpty) {
       Category newCategory = Category(categoryName);
-      setState(() {
-        _categories.add(newCategory);
+      _databaseReference.child('categories').push().set({
+        'name': newCategory.name,
+      }).then((_) {
+        setState(() {
+          _categories.add(newCategory);
+        });
+        _categoryController.clear();
+        Navigator.pop(context);
       });
-      _categoryController.clear();
-      Navigator.pop(context);
     }
   }
 
@@ -106,7 +113,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                           padding: EdgeInsets.all(1.0), // Aumenta o espaçamento interno
                           margin: EdgeInsets.symmetric(vertical: 4.0), // Aumenta o espaçamento entre as categorias
                           decoration: BoxDecoration(
-                            color: Color.fromRGBO(57, 126, 123, 0.69), // Define o background verde
+                            color: Color(0xAE397E7B), // Define o background verde
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: ListTile(

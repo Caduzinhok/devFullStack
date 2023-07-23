@@ -11,7 +11,7 @@ class AccountSettingsWallet extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Exibir aqui a tela de relatórios e analytics do aplicativo',
+            'Exibir aqui a tela de configurações do usuário',
             style: TextStyle(fontSize: 32),
           ),
         ],

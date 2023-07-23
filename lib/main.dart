@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; // Importe o pacote
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'analytics_page.dart';
 import 'home_page.dart';
 import 'settings_page.dart';
-import 'wallet_page.dart';
+import 'category.dart';
 
-void main() => runApp(const HomeAplicacaoFinanceira());
+void main() async {
 
+  // Ativar Firebase
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Chamar tela inicial
+  // Implementar tela de login
+  runApp(const HomeAplicacaoFinanceira());
+}
 class HomeAplicacaoFinanceira extends StatelessWidget {
   const HomeAplicacaoFinanceira({super.key});
 
@@ -45,7 +57,7 @@ class _BottomMenuState
     AnalyticsWidget(),
 
    // Desenvolver tela de inserção de despesas e categorias do Aplicativo
-    WalletWidget(),
+    CategoryWidget(),
     
     // Desenvolver Pagina de Configurações do Aplicativo
     AccountSettingsWallet(),
