@@ -3,6 +3,8 @@ import 'package:managment/Screens/lancamento.dart';
 import 'package:managment/Screens/home.dart';
 import 'package:managment/Screens/statistics.dart';
 import 'package:managment/Screens/category.dart';
+
+import '../Screens/settings.dart';
 class Bottom extends StatefulWidget {
   const Bottom({Key? key}) : super(key: key);
 
@@ -12,7 +14,7 @@ class Bottom extends StatefulWidget {
 
 class _BottomState extends State<Bottom> {
   int index_color = 0;
-  List Screen = [Home(), Statistics(), Category(), Statistics()];
+  List Screen = [Home(), Statistics(), Category(), Settings()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
