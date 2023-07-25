@@ -1,16 +1,16 @@
 # Aplicação Financeira
 
-A Flutter project.
+O software produzido trata-se de um sistema de gestão financeira pessoal, que tem como objetivo, auxiliar o usuário em sua gestão financeira, disponibilizando funcionalidades que o permitirão monitorar seus gastos e realizar seu planejamento financeiro.
 
-The project will allow the user to create an account to manage their daily expenses in a simple and objective way, creating expense subcategories, having access to historical reports and account expiration alerts.
+## Como usar
 
-## How to Use
+Este projeto no padrão aplicativo Flutter.
 
-This project is a starting point for a Flutter application.
+Para dúvidas de instalação e uso consultar:
+[Documentação Online](https://docs.flutter.dev/)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Com exemplos de execução, configuração de ambiente, etc.
+## Já desenvolvido
 
-## Already Developed
-...
+### Versão inicial da tela de Home e menu
+<img src = "images/Status_Projeto.PNG"></img>
