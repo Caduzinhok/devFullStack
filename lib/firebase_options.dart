@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB1anL2mXMYc3GR2cxZKJ59pOmPFlk4e9c',
-    appId: '1:489434370331:android:cd66ebd66ef005f26b03be',
+    appId: '1:489434370331:android:92d39c3a030a2c366b03be',
     messagingSenderId: '489434370331',
     projectId: 'financehub-925f3',
     storageBucket: 'financehub-925f3.appspot.com',
@@ -63,21 +63,21 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCJ-6UntVcf8esWAe1M9pY5hdI887ExReg',
-    appId: '1:489434370331:ios:a5aba063f9247d646b03be',
+    appId: '1:489434370331:ios:0b97d640de3bf55b6b03be',
     messagingSenderId: '489434370331',
     projectId: 'financehub-925f3',
     storageBucket: 'financehub-925f3.appspot.com',
-    iosClientId: '489434370331-6lnkrehebvisoalqi5cilk9q9reusopl.apps.googleusercontent.com',
-    iosBundleId: 'com.example.aplicacaoFinanceira',
+    iosClientId: '489434370331-ncpbha5senghanjdu8maen87n8pit8cq.apps.googleusercontent.com',
+    iosBundleId: 'com.example.managment',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCJ-6UntVcf8esWAe1M9pY5hdI887ExReg',
-    appId: '1:489434370331:ios:4eb2dd7459f5b72f6b03be',
+    appId: '1:489434370331:ios:0b97d640de3bf55b6b03be',
     messagingSenderId: '489434370331',
     projectId: 'financehub-925f3',
     storageBucket: 'financehub-925f3.appspot.com',
-    iosClientId: '489434370331-2pivuoukpearsdbq9dtodmn9fbfgep6m.apps.googleusercontent.com',
-    iosBundleId: 'com.example.aplicacaoFinanceira.RunnerTests',
+    iosClientId: '489434370331-ncpbha5senghanjdu8maen87n8pit8cq.apps.googleusercontent.com',
+    iosBundleId: 'com.example.managment',
   );
 }

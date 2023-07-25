@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>489434370331-6lnkrehebvisoalqi5cilk9q9reusopl.apps.googleusercontent.com</string>
+	<string>489434370331-ncpbha5senghanjdu8maen87n8pit8cq.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.489434370331-6lnkrehebvisoalqi5cilk9q9reusopl</string>
+	<string>com.googleusercontent.apps.489434370331-ncpbha5senghanjdu8maen87n8pit8cq</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCJ-6UntVcf8esWAe1M9pY5hdI887ExReg</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.aplicacaoFinanceira</string>
+	<string>com.example.managment</string>
 	<key>PROJECT_ID</key>
 	<string>financehub-925f3</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:489434370331:ios:a5aba063f9247d646b03be</string>
+	<string>1:489434370331:ios:0b97d640de3bf55b6b03be</string>
 </dict>
 </plist>
