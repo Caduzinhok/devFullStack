@@ -16,13 +16,13 @@ class _HomeState extends State<Home> {
   var history;
   final box = Hive.box<Add_data>('data');
   final List<String> day = [
-    'Monday',
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    'friday',
-    'saturday',
-    'sunday'
+    'Segunda',
+    "Terça",
+    "Quarta",
+    "Quinta",
+    'Sexta',
+    'Sábado',
+    'Domingo'
   ];
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                             Text(
-                              'Ver Todos',
+                              'Ver Tudo',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,

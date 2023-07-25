@@ -340,17 +340,6 @@ class _Add_ScreenState extends State<Add_Screen> {
                       },
                       child: Icon(Icons.arrow_back, color: Colors.white),
                     ),
-                    Text(
-                      'Adicionando',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
-                    ),
-                    Icon(
-                      Icons.attach_file_outlined,
-                      color: Colors.white,
-                    )
                   ],
                 ),
               )
