@@ -3,6 +3,7 @@ import 'package:managment/Screens/lancamento.dart';
 import 'package:managment/Screens/home.dart';
 import 'package:managment/Screens/statistics.dart';
 import 'package:managment/Screens/category.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import '../Screens/settings.dart';
 class Bottom extends StatefulWidget {
