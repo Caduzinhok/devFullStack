@@ -1,35 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:managment/Screens/home.dart';
-import 'package:managment/Screens/register_page.dart';
-import 'package:managment/Screens/statistics.dart';
+import 'package:managment/Screens/login_page.dart';
 import '../widgets/menu.dart';
 
-class LoginPage extends StatelessWidget {
+class RegisterPage extends StatelessWidget {
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  void _signInWithEmailAndPassword(BuildContext context) async {
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Bottom(), // Substitua "NextScreen" pelo nome da próxima tela.
-        ),
-      );
-      // Login bem-sucedido, você pode navegar para a próxima tela aqui.
-    } catch (e) {
-      _showErrorAlert(context);
-      // Trate erros de autenticação aqui (por exemplo, exiba uma mensagem de erro na tela).
-    }
-  }
-
-    void _showErrorAlert(BuildContext context) {
+  String MessageError = "";
+   void _showErrorAlert(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -38,7 +18,7 @@ class LoginPage extends StatelessWidget {
             'ERRO',
             style: TextStyle(color: Colors.red),
           ),
-          content: Text('Usuário ou senha incorreto, por favor verifique.'),
+          content: Text(MessageError),
           actions: [
             TextButton(
               onPressed: () {
@@ -58,6 +38,7 @@ class LoginPage extends StatelessWidget {
       },
     );
   }
+
   void _createAccountWithEmailAndPassword(BuildContext context) async {
     try {
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -68,7 +49,7 @@ class LoginPage extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => Bottom(), // Entrar na página Home
+          builder: (context) => Bottom(), 
         ),
       );
 
@@ -76,23 +57,27 @@ class LoginPage extends StatelessWidget {
     } catch (e) {
       if (e is FirebaseAuthException) {
         if (e.code == 'email-already-in-use') {
-          print('Este e-mail já está em uso. Por favor, tente outro.');
+          MessageError = 'Este e-mail já está em uso. Por favor, tente outro.';
           // Exiba uma mensagem de erro na tela informando que o e-mail já está em uso.
         } else if (e.code == 'weak-password') {
-          print('Senha fraca. A senha deve ter pelo menos 6 caracteres.');
+          MessageError = 'Senha fraca. A senha deve ter pelo menos 6 caracteres.';
           // Exiba uma mensagem de erro na tela informando que a senha é fraca.
         } else {
           print('Erro ao criar conta: ${e.message}');
+          MessageError = 'Erro ao criar conta, por favor tente novamente';
           // Trate outras exceções do FirebaseAuthException conforme necessário.
         }
+        _showErrorAlert(context);
       } else {
         print('Erro ao criar conta: $e');
+        MessageError = 'Erro ao criar conta, por favor tente novamente';
         // Trate outras exceções que não sejam do tipo FirebaseAuthException.
+        _showErrorAlert(context);
       }
     }
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
@@ -107,68 +92,71 @@ class LoginPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color:  Color(0xff368983),
                 borderRadius: BorderRadius.circular(8),
-                
               ),
               
               child: Column(
                 children: [
-                  
                   Text(
-                     'Entre agora',
+                     'Registre-se Agora',
                       style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
+                  SizedBox(height: 34),
+                  TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: 'Nome', labelStyle: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: Colors.white,),
+                  ),
+                  SizedBox(height: 16),
                   TextFormField(
                     controller: emailController,
                     decoration: InputDecoration(labelText: 'E-mail', labelStyle: TextStyle(color: Colors.white)),
                     style: TextStyle(color: Colors.white,),
                   ),
                   SizedBox(height: 16),
+
                   TextFormField(
                     controller: passwordController,
                     obscureText: true,
-                    decoration: InputDecoration(labelText: 'Senha', labelStyle: TextStyle(color: Colors.white) ),
+                    decoration: InputDecoration(labelText: 'Senha', labelStyle: TextStyle(color: Colors.white)),
                     style: TextStyle(color: Colors.white)
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 50),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () => _signInWithEmailAndPassword(context),
+                        onPressed: () =>
+                        _createAccountWithEmailAndPassword(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                          padding: EdgeInsets.all(16),
                           elevation: 0,
+                          padding: EdgeInsets.all(16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         child: Text(
-                          'Entrar',
-                          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 16),
+                          'Registrar-se',
+                          style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 16),
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
+                      GestureDetector(
+                        onTap: () {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => RegisterPage(),
+                              builder: (context) => LoginPage(),
                             ),
                           );
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                          elevation: 0,
-                          padding: EdgeInsets.all(16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                          child: Text(
+                            'Já Possuo Conta',
+                            style: TextStyle(
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 16, // Increase font size when cursor enters
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          'Criar Conta',
-                          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 16),
-                        ),
                       ),
                     ],
                   ),

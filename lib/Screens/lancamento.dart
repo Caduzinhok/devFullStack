@@ -135,7 +135,7 @@ class _Add_ScreenState extends State<Add_Screen> {
           });
         },
         child: Text(
-          'Data : ${date.year} / ${date.day} / ${date.month}',
+          'Data : ${date.day} / ${date.month} / ${date.year}',
           style: TextStyle(
             fontSize: 15,
             color: Colors.black,
