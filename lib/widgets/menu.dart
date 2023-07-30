@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:managment/Screens/lancamento.dart';
+import 'package:managment/Screens/new_category.dart';
+import 'package:managment/Screens/new_register.dart';
 import 'package:managment/Screens/home.dart';
 import 'package:managment/Screens/statistics.dart';
 import 'package:managment/Screens/category.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import '../Screens/settings.dart';
 class Bottom extends StatefulWidget {
@@ -16,6 +16,7 @@ class Bottom extends StatefulWidget {
 class _BottomState extends State<Bottom> {
   int index_color = 0;
   List Screen = [Home(), Statistics(), Category(), Settings()];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +24,7 @@ class _BottomState extends State<Bottom> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => Add_Screen()));
+              .push(MaterialPageRoute(builder: (context) => index_color == 0 ? Add_Screen(): Add_Category()));
         },
         child: Icon(Icons.add),
         backgroundColor: Color(0xff368983),

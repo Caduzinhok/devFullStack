@@ -103,7 +103,7 @@ class _Add_ScreenState extends State<Add_Screen> {
         width: 120,
         height: 50,
         child: Text(
-          'Save',
+          'Salvar',
           style: TextStyle(
             fontFamily: 'f',
             fontWeight: FontWeight.w600,
