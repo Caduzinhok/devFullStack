@@ -51,6 +51,12 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => loading = true);
     try {
       await context.read<AuthService>().login(emailController.text, passwordController.text);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Bottom(), // Substitua "NextScreen" pelo nome da próxima tela.
+        ),
+      );
     } on AuthException catch (e) {
       setState(() => loading = false);
       ScaffoldMessenger.of(context)
