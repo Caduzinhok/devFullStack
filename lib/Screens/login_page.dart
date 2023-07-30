@@ -2,8 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:managment/Screens/register_page.dart';
 import '../widgets/menu.dart';
+import 'package:provider/provider.dart';
+import 'package:managment/Services/auth_service.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  LoginPage({Key? key}) : super(key: key);
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -56,88 +66,185 @@ class LoginPage extends StatelessWidget {
       },
     );
   }
+  bool isLogin = true;
+  late String titulo;
+  late String actionButton;
+  late String toggleButton;
+  bool loading = false;
+  FocusNode em = FocusNode();
+  FocusNode sen = FocusNode();
 
   @override
+  void initState() {
+    super.initState();
+    setFormAction(true);
+  }
+
+  setFormAction(bool acao) {
+    setState(() {
+      isLogin = acao;
+      if (isLogin) {
+        titulo = 'Bem vindo';
+        actionButton = 'Login';
+        toggleButton = 'Ainda não tem conta? Cadastre-se agora.';
+      }
+    });
+  }
+
+  login() async {
+    setState(() => loading = true);
+    try {
+      await context.read<AuthService>().login(emailController.text, passwordController.text);
+    } on AuthException catch (e) {
+      setState(() => loading = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  registrar() async {
+    setState(() => loading = true);
+    try {
+      await context.read<AuthService>().registrar(emailController.text, passwordController.text);
+    } on AuthException catch (e) {
+      setState(() => loading = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: Colors.grey.shade100,
+      body: SafeArea(
+        child: Stack(
+          alignment: AlignmentDirectional.center,
           children: [
+            background_container(context),
+            Positioned(
+              top: 120,
+              child: main_container(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            SizedBox(height: 16),
-            Container(
+  Container main_container() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+      ),
+      height: 550,
+      width: 340,
+      child: Column(
+        children: [
+          SizedBox(height: 50),
+          setEmail(),
+          SizedBox(height: 30),
+          setSenha(),
+          SizedBox(height: 30),
+          save(),
+          SizedBox(height: 30),
+          textButton(),
+        ],
+      ),
+    );
+  }
+
+  Padding setEmail() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        keyboardType: TextInputType.emailAddress,
+        focusNode: em,
+        controller: emailController,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          labelText: 'Email',
+          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+        ),
+      ),
+    );
+  }
+
+  Padding setSenha() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        obscureText: true,
+        focusNode: sen,
+        controller: passwordController,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          labelText: 'Senha',
+          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+        ),
+      ),
+    );
+  }
+  Padding textButton(){
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: TextButton(
+          onPressed: () {
+            // Ação ao pressionar o TextButton
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RegisterPage()),
+            );
+            isLogin = false;
+          },
+          child: Text('Ainda não tem conta? Cadastre-se agora.'),
+        ),
+    );
+  }
+  Padding save() {
+    return Padding(
+      padding: EdgeInsets.all(24.0),
+      child: ElevatedButton(
+        onPressed: () {
+          login();
+        },
+        style: ElevatedButton.styleFrom(
+          primary: Color(0xff368983), // Cor verde definida por hexadecimal
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: (loading)
+              ? [
+            Padding(
               padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color:  Color(0xff368983),
-                borderRadius: BorderRadius.circular(8),
-                
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
               ),
-              
-              child: Column(
-                children: [
-                  
-                  Text(
-                     'Entre agora',
-                      style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  TextFormField(
-                    controller: emailController,
-                    decoration: InputDecoration(labelText: 'E-mail', labelStyle: TextStyle(color: Colors.white)),
-                    style: TextStyle(color: Colors.white,),
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(labelText: 'Senha', labelStyle: TextStyle(color: Colors.white) ),
-                    style: TextStyle(color: Colors.white)
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => _signInWithEmailAndPassword(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                          padding: EdgeInsets.all(16),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Entrar',
-                          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 16),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RegisterPage(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                          elevation: 0,
-                          padding: EdgeInsets.all(16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Criar Conta',
-                          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+            )
+          ]
+              : [
+            Icon(Icons.check),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                actionButton,
+                style: TextStyle(fontSize: 20),
               ),
             ),
           ],
@@ -145,4 +252,43 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
+
+  Column background_container(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 240,
+          decoration: BoxDecoration(
+            color: Color(0xff368983),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            children: [
+              SizedBox(height: 40),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
+

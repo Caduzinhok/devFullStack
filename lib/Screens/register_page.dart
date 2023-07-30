@@ -1,165 +1,217 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:managment/Screens/login_page.dart';
-import '../widgets/menu.dart';
+import 'package:provider/provider.dart';
+import 'package:managment/Services/auth_service.dart';
 
-class RegisterPage extends StatelessWidget {
-  final TextEditingController nameController = TextEditingController();
+class RegisterPage extends StatefulWidget {
+  RegisterPage({Key? key}) : super(key: key);
+
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  String MessageError = "";
-   void _showErrorAlert(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'ERRO',
-            style: TextStyle(color: Colors.red),
-          ),
-          content: Text(MessageError),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'FECHAR',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: Colors.red, width: 2),
-          ),
-        );
-      },
-    );
+  final TextEditingController nameController = TextEditingController();
+
+  bool isLogin = true;
+  late String titulo;
+  bool loading = false;
+  FocusNode em = FocusNode();
+  FocusNode sen = FocusNode();
+  FocusNode nam = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    setFormAction(true);
   }
 
-  void _createAccountWithEmailAndPassword(BuildContext context) async {
+  setFormAction(bool acao) {
+    setState(() {
+      titulo = 'Crie sua conta';
+    });
+  }
+
+  login() async {
+    setState(() => loading = true);
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Bottom(), 
-        ),
-      );
-
-      // Conta de usuário criada com sucesso, você pode navegar para a próxima tela aqui.
-    } catch (e) {
-      if (e is FirebaseAuthException) {
-        if (e.code == 'email-already-in-use') {
-          MessageError = 'Este e-mail já está em uso. Por favor, tente outro.';
-          // Exiba uma mensagem de erro na tela informando que o e-mail já está em uso.
-        } else if (e.code == 'weak-password') {
-          MessageError = 'Senha fraca. A senha deve ter pelo menos 6 caracteres.';
-          // Exiba uma mensagem de erro na tela informando que a senha é fraca.
-        } else {
-          print('Erro ao criar conta: ${e.message}');
-          MessageError = 'Erro ao criar conta, por favor tente novamente';
-          // Trate outras exceções do FirebaseAuthException conforme necessário.
-        }
-        _showErrorAlert(context);
-      } else {
-        print('Erro ao criar conta: $e');
-        MessageError = 'Erro ao criar conta, por favor tente novamente';
-        // Trate outras exceções que não sejam do tipo FirebaseAuthException.
-        _showErrorAlert(context);
-      }
+      await context.read<AuthService>().login(emailController.text, passwordController.text);
+    } on AuthException catch (e) {
+      setState(() => loading = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
- @override
+  registrar() async {
+    setState(() => loading = true);
+    try {
+      await context.read<AuthService>().registrar(emailController.text, passwordController.text);
+    } on AuthException catch (e) {
+      setState(() => loading = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: Colors.grey.shade100,
+      body: SafeArea(
+        child: Stack(
+          alignment: AlignmentDirectional.center,
           children: [
+            background_container(context),
+            Positioned(
+              top: 120,
+              child: main_container(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            SizedBox(height: 16),
-            Container(
+  Container main_container() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+      ),
+      height: 550,
+      width: 340,
+      child: Column(
+        children: [
+          SizedBox(height: 50),
+          setName(),
+          SizedBox(height: 30),
+          setEmail(),
+          SizedBox(height: 30),
+          setSenha(),
+          SizedBox(height: 30),
+          save(),
+          SizedBox(height: 30),
+          textButton(),
+        ],
+      ),
+    );
+  }
+
+  Padding setEmail() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        keyboardType: TextInputType.emailAddress,
+        focusNode: em,
+        controller: emailController,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          labelText: 'Email',
+          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+        ),
+      ),
+    );
+  }
+
+  Padding setName() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        keyboardType: TextInputType.text,
+        focusNode: nam,
+        controller: nameController,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          labelText: 'Nome',
+          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+        ),
+      ),
+    );
+  }
+
+  Padding setSenha() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        obscureText: true,
+        focusNode: sen,
+        controller: passwordController,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          labelText: 'Senha',
+          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+        ),
+      ),
+    );
+  }
+  Padding textButton(){
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextButton(
+        onPressed: () {
+          // Ação ao pressionar o TextButton
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
+        },
+        child: Text('Voltar ao login'),
+      ),
+    );
+  }
+  Padding save() {
+    return Padding(
+      padding: EdgeInsets.all(24.0),
+      child: ElevatedButton(
+        onPressed: () {
+          registrar();
+        },
+        style: ElevatedButton.styleFrom(
+          primary: Color(0xff368983), // Cor verde definida por hexadecimal
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: (loading)
+              ? [
+            Padding(
               padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color:  Color(0xff368983),
-                borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
               ),
-              
-              child: Column(
-                children: [
-                  Text(
-                     'Registre-se Agora',
-                      style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  SizedBox(height: 34),
-                  TextFormField(
-                    controller: nameController,
-                    decoration: InputDecoration(labelText: 'Nome', labelStyle: TextStyle(color: Colors.white)),
-                    style: TextStyle(color: Colors.white,),
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: emailController,
-                    decoration: InputDecoration(labelText: 'E-mail', labelStyle: TextStyle(color: Colors.white)),
-                    style: TextStyle(color: Colors.white,),
-                  ),
-                  SizedBox(height: 16),
-
-                  TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(labelText: 'Senha', labelStyle: TextStyle(color: Colors.white)),
-                    style: TextStyle(color: Colors.white)
-                  ),
-                  SizedBox(height: 50),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () =>
-                        _createAccountWithEmailAndPassword(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 255, 255, 255),
-                          elevation: 0,
-                          padding: EdgeInsets.all(16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Registrar-se',
-                          style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 16),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoginPage(),
-                            ),
-                          );
-                        },
-                          child: Text(
-                            'Já Possuo Conta',
-                            style: TextStyle(
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                              fontSize: 16, // Increase font size when cursor enters
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                      ),
-                    ],
-                  ),
-                ],
+            )
+          ]
+              : [
+            Icon(Icons.check),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Cadastrar',
+                style: TextStyle(fontSize: 20),
               ),
             ),
           ],
@@ -167,4 +219,43 @@ class RegisterPage extends StatelessWidget {
       ),
     );
   }
+
+  Column background_container(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 240,
+          decoration: BoxDecoration(
+            color: Color(0xff368983),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            children: [
+              SizedBox(height: 40),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
+

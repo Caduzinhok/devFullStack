@@ -54,17 +54,17 @@ class _ChartState extends State<Chart> {
                 return SalesData(
                     j
                         ? b
-                            ? a![index].datetime.hour.toString()
-                            : a![index].datetime.day.toString()
+                        ? a![index].datetime.hour.toString()
+                        : a![index].datetime.day.toString()
                         : a![index].datetime.month.toString(),
                     b
                         ? index > 0
-                            ? time(a!, true)[index] + time(a!, true)[index - 1]
-                            : time(a!, true)[index]
+                        ? time(a!, true)[index] + time(a!, true)[index - 1]
+                        : time(a!, true)[index]
                         : index > 0
-                            ? time(a!, false)[index] +
-                                time(a!, false)[index - 1]
-                            : time(a!, false)[index]);
+                        ? time(a!, false)[index] +
+                        time(a!, false)[index - 1]
+                        : time(a!, false)[index]);
               })
             ],
             xValueMapper: (SalesData sales, _) => sales.year,
