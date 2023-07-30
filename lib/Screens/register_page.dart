@@ -28,6 +28,8 @@ class _RegisterPageState extends State<RegisterPage> {
   FocusNode em = FocusNode();
   FocusNode sen = FocusNode();
   FocusNode nam = FocusNode();
+  late String actionButton;
+  late String toggleButton;
 
   @override
   void initState() {
@@ -37,25 +39,27 @@ class _RegisterPageState extends State<RegisterPage> {
 
   setFormAction(bool acao) {
     setState(() {
-      titulo = 'Crie sua conta';
+      isLogin = acao;
+      if (isLogin) {
+        titulo = 'Bem vindo';
+        actionButton = 'Login';
+        toggleButton = 'Ainda não tem conta? Cadastre-se agora.';
+      } else {
+        titulo = 'Crie sua conta';
+        actionButton = 'Cadastrar';
+        toggleButton = 'Voltar ao Login.';
+      }
     });
-  }
-
-  login() async {
-    setState(() => loading = true);
-    try {
-      await context.read<AuthService>().login(emailController.text, passwordController.text);
-    } on AuthException catch (e) {
-      setState(() => loading = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
-    }
   }
 
   registrar() async {
     setState(() => loading = true);
     try {
-      await context.read<AuthService>().registrar(emailController.text, passwordController.text);
+      await context.read<AuthService>().registrar(emailController.text, passwordController.text, nameController.text);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
     } on AuthException catch (e) {
       setState(() => loading = false);
       ScaffoldMessenger.of(context)
@@ -191,6 +195,7 @@ class _RegisterPageState extends State<RegisterPage> {
       padding: EdgeInsets.all(24.0),
       child: ElevatedButton(
         onPressed: () {
+          setFormAction(!isLogin);
           registrar();
         },
         style: ElevatedButton.styleFrom(
@@ -256,6 +261,16 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ],
                 ),
+              ),
+              Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Text(
+                      'Cadastro',
+                      style: TextStyle(fontSize: 20.0,
+                          color: Color.fromARGB(255, 255, 255, 255)),
+                    ),
+                  )
               )
             ],
           ),

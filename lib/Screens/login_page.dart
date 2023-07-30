@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:managment/Screens/home.dart';
@@ -7,6 +8,7 @@ import '../widgets/auth_check.dart';
 import '../widgets/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:managment/Services/auth_service.dart';
+
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -39,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
       isLogin = acao;
       if (isLogin) {
         titulo = 'Bem vindo';
-        actionButton = 'Login';
+        actionButton = 'Entrar';
         toggleButton = 'Ainda não tem conta? Cadastre-se agora.';
       }
     });
@@ -49,17 +51,6 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => loading = true);
     try {
       await context.read<AuthService>().login(emailController.text, passwordController.text);
-    } on AuthException catch (e) {
-      setState(() => loading = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
-    }
-  }
-
-  registrar() async {
-    setState(() => loading = true);
-    try {
-      await context.read<AuthService>().registrar(emailController.text, passwordController.text);
     } on AuthException catch (e) {
       setState(() => loading = false);
       ScaffoldMessenger.of(context)
@@ -172,7 +163,8 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.all(24.0),
       child: ElevatedButton(
         onPressed: () {
-          login();
+            setFormAction(!isLogin);
+            login();
         },
         style: ElevatedButton.styleFrom(
           primary: Color(0xff368983), // Cor verde definida por hexadecimal
@@ -237,6 +229,16 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
+              ),
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text(
+                    'Login',
+                    style: TextStyle(fontSize: 20.0,
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                  ),
+                )
               )
             ],
           ),
