@@ -16,14 +16,14 @@ class _SettingsState extends State<Settings> {
       body: SafeArea(child: Column(
         children: [
           SizedBox(height: 20),
-            Text(
-              'Tela de Configurações',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+          Text(
+            'Tela de Configurações',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
             ),
+          ),
         ],
       ),
       ),

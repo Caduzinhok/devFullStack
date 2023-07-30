@@ -56,9 +56,11 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => loading = true);
     try {
       await context.read<AuthService>().registrar(emailController.text, passwordController.text, nameController.text);
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Home()),
+        MaterialPageRoute(
+          builder: (context) => Bottom(), // Substitua "NextScreen" pelo nome da próxima tela.
+        ),
       );
     } on AuthException catch (e) {
       setState(() => loading = false);
