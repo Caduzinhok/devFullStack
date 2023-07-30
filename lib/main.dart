@@ -14,9 +14,13 @@ import 'data/model/add_date.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await HiveConfig.start();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
+  await Hive.initFlutter();
+  Hive.registerAdapter(AdddataAdapter());
+  await Hive.openBox<Add_data>('data');
   runApp(
     MultiProvider(
       providers: [
@@ -33,8 +37,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Finance Hub',
+      title: 'FinanceHub',
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+      ),
       home: AuthCheck(),
     );
   }

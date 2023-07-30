@@ -8,7 +8,7 @@ class AuthException implements Exception {
 
 class AuthService extends ChangeNotifier {
   FirebaseAuth _auth = FirebaseAuth.instance;
-  User? usuario;
+  User? user;
   bool isLoading = true;
 
   AuthService() {
@@ -17,20 +17,24 @@ class AuthService extends ChangeNotifier {
 
   _authCheck() {
     _auth.authStateChanges().listen((User? user) {
-      usuario = (user == null) ? null : user;
+      user = (user == null) ? null : user;
       isLoading = false;
       notifyListeners();
     });
   }
 
   _getUser() {
-    usuario = _auth.currentUser;
+    user = _auth.currentUser;
     notifyListeners();
   }
 
   registrar(String email, String senha) async {
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: senha);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
       _getUser();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -43,9 +47,13 @@ class AuthService extends ChangeNotifier {
 
   login(String email, String senha) async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email, password: senha);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+        email: email,
+        password: senha,
+      );
       _getUser();
-    } on FirebaseAuthException catch (e) {
+    }on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw AuthException('Email não encontrado. Cadastre-se.');
       } else if (e.code == 'wrong-password') {
