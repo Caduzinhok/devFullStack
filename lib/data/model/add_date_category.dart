@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:managment/Screens/category.dart';
+
+import '../../Screens/category.dart';
+import '../../widgets/menu.dart';
 
 void saveToFirebase(BuildContext context, String name, String Description) {
   // Crie uma referência para a coleção "dados" no Cloud Firestore
-  CollectionReference dataCollection = FirebaseFirestore.instance.collection('categoria');
+  CollectionReference dataCollection = FirebaseFirestore.instance.collection('categorias');
 
   // Crie um mapa com os dados que deseja salvar
   var data = {
@@ -19,7 +21,7 @@ void saveToFirebase(BuildContext context, String name, String Description) {
         Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Category(),
+          builder: (context) => Bottom(),
         ),
   );
     })

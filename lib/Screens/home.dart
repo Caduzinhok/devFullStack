@@ -75,6 +75,7 @@ class _HomeState extends State<Home> {
     );
   }
 
+
   Widget getList(Add_data history, int index) {
     return Dismissible(
         key: UniqueKey(),

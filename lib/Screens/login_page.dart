@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => Bottom(), // Substitua "NextScreen" pelo nome da próxima tela.
+          builder: (context) => Bottom(),
         ),
       );
       // Login bem-sucedido, você pode navegar para a próxima tela aqui.
@@ -197,6 +197,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
   Padding textButton(){
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -213,6 +214,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
     );
   }
+
   Padding save() {
     return Padding(
       padding: EdgeInsets.all(24.0),
@@ -221,7 +223,7 @@ class _LoginPageState extends State<LoginPage> {
           login();
         },
         style: ElevatedButton.styleFrom(
-          primary: Color(0xff368983), // Cor verde definida por hexadecimal
+          backgroundColor: Color(0xff368983), // Cor verde definida por hexadecimal
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -265,26 +267,6 @@ class _LoginPageState extends State<LoginPage> {
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
             ),
-          ),
-          child: Column(
-            children: [
-              SizedBox(height: 40),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Icon(Icons.arrow_back, color: Colors.white),
-                    ),
-                  ],
-                ),
-              )
-            ],
           ),
         ),
       ],

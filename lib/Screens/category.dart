@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:managment/data/listdata.dart';
 import 'package:managment/data/model/add_date.dart';
-import 'package:managment/data/utlity.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Category extends StatefulWidget {
   const Category({Key? key}) : super(key: key);
@@ -11,86 +10,115 @@ class Category extends StatefulWidget {
   State<Category> createState() => _CategoryState();
 }
 
+// Classe que representa os dados de cada categoria
+class CategoryData {
+  final String name;
+  final String description;
+
+  CategoryData({required this.name, required this.description});
+}
+
 class _CategoryState extends State<Category> {
   var history;
-  final box = Hive.box<Add_data>('data');
-  
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-          child: ValueListenableBuilder(
-              valueListenable: box.listenable(),
-              builder: (context, value, child) {
-                return CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: 340, child: _head()),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Categorias Existentes',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 19,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              'Ver Tudo',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
+return Scaffold(
+  body: FutureBuilder<List<CategoryData>>(
+    future: getDataFromFirebase(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      } else if (snapshot.hasError) {
+        return Center(
+          child: Text('Erro ao carregar os dados'),
+        );
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return Center(
+          child: Text('Nenhum dado encontrado'),
+        );
+      } else {
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: SizedBox(height: 340, child: _head()),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Histórico de Transações',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 19,
+                        color: Colors.black,
                       ),
                     ),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          history = box.values.toList()[index];
-                          return getList(history, index);
-                        },
-                        childCount: box.length,
+                    Text(
+                      'Ver Tudo',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Colors.grey,
                       ),
-                    )
+                    ),
                   ],
-                );
-              })),
-    );
+                ),
+              ),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  CategoryData categoryData = snapshot.data![index];
+                  return ListTile(
+                    title: Text(
+                      categoryData.name,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                },
+                childCount: snapshot.data!.length,
+              ),
+            )
+          ],
+        );
+      }
+    },
+  ),
+);
   }
 
-  Widget getList(Add_data history, int index) {
-    return Dismissible(
-        key: UniqueKey(),
-        onDismissed: (direction) {
-          history.delete();
-        },
-        child: get(index, history));
-  }
+  Future<List<CategoryData>> getDataFromFirebase() async {
+    List<CategoryData> categoryList = [];
 
-  ListTile get(int index, Add_data history) {
-    return ListTile(
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(5),
-        child: Image.asset('images/${history.name}.png', height: 40),
-      ),
-      title: Text(
-        history.name,
-        style: TextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('categorias').get();
+
+      querySnapshot.docs.forEach((doc) {
+        // Recupera os dados do documento e cria uma instância de CategoryData
+        CategoryData categoryData = CategoryData(
+          name: doc['name'],
+          description: doc['description'],
+        );
+
+        // Adiciona o CategoryData à lista
+        categoryList.add(categoryData);
+      });
+
+      return categoryList;
+    } catch (e) {
+      print('Erro ao buscar dados no Firebase: $e');
+      return [];
+    }
   }
 
   Widget _head() {
@@ -110,7 +138,7 @@ class _CategoryState extends State<Category> {
               ),
             ),
           ],
-        ),  
+        ),
       ],
     );
   }
