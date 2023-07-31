@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:managment/Screens/home.dart';
 
 class AuthException implements Exception {
   String message;

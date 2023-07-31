@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:managment/Screens/home.dart';
 import 'package:managment/Screens/register_page.dart';
 import 'package:managment/Screens/statistics.dart';
 import '../widgets/auth_check.dart';
