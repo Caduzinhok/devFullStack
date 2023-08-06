@@ -8,7 +8,6 @@ import '../widgets/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:managment/Services/auth_service.dart';
 
-
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
 
@@ -172,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
             login();
         },
         style: ElevatedButton.styleFrom(
-          primary: Color(0xff368983), // Cor verde definida por hexadecimal
+          backgroundColor: Color(0xff368983), // Cor verde definida por hexadecimal
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

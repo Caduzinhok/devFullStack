@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:managment/Screens/login_page.dart';
-import 'package:managment/Screens/register_page.dart';
-import 'package:managment/Screens/statistics.dart';
-import '../widgets/auth_check.dart';
-import '../widgets/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:managment/Services/auth_service.dart';
 

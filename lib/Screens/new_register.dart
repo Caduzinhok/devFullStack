@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:managment/data/model/add_date.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class Add_Screen extends StatefulWidget {
@@ -9,8 +10,16 @@ class Add_Screen extends StatefulWidget {
   State<Add_Screen> createState() => _Add_ScreenState();
 }
 
+class CategoryData {
+  final String name;
+  final String description;
+
+  CategoryData({required this.name, required this.description});
+}
+
 class _Add_ScreenState extends State<Add_Screen> {
   final box = Hive.box<Add_data>('data');
+  List<CategoryData> _categoryDataList = [];
   DateTime date = new DateTime.now();
   String? selctedItem;
   String? selctedItemi;
@@ -30,7 +39,6 @@ class _Add_ScreenState extends State<Add_Screen> {
   ];
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     ex.addListener(() {
       setState(() {});
@@ -38,8 +46,41 @@ class _Add_ScreenState extends State<Add_Screen> {
     amount_.addListener(() {
       setState(() {});
     });
+    fetchDataFromFirebase();
   }
 
+  // Função para buscar os dados do Firebase
+  Future<void> fetchDataFromFirebase() async {
+    List<CategoryData> data = await getDataFromFirebase();
+    setState(() {
+      _categoryDataList = data;
+    });
+  }
+
+  Future<List<CategoryData>> getDataFromFirebase() async {
+    List<CategoryData> _categoryList = [];
+
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('categorias').get();
+
+      querySnapshot.docs.forEach((doc) {
+        // Recupera os dados do documento e cria uma instância de CategoryData
+        CategoryData categoryData = CategoryData(
+          name: doc['name'],
+          description: doc['description'],
+        );
+
+        // Adiciona o CategoryData à lista
+        _categoryList.add(categoryData);
+      });
+
+      return _categoryList;
+    } catch (e) {
+      print('Erro ao buscar dados no Firebase: $e');
+      return [];
+    }
+  }
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -103,7 +144,7 @@ class _Add_ScreenState extends State<Add_Screen> {
         width: 120,
         height: 50,
         child: Text(
-          'Save',
+          'Salvar',
           style: TextStyle(
             fontFamily: 'f',
             fontWeight: FontWeight.w600,
@@ -244,7 +285,7 @@ class _Add_ScreenState extends State<Add_Screen> {
     );
   }
 
-  Padding name() {
+Padding name() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Container(
@@ -259,44 +300,38 @@ class _Add_ScreenState extends State<Add_Screen> {
         ),
         child: DropdownButton<String>(
           value: selctedItem,
-          onChanged: ((value) {
+          onChanged: (value) {
             setState(() {
               selctedItem = value!;
             });
-          }),
-          items: _item
-              .map((e) => DropdownMenuItem(
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            child: Image.asset('images/${e}.png'),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            e,
-                            style: TextStyle(fontSize: 18),
-                          )
-                        ],
-                      ),
-                    ),
-                    value: e,
-                  ))
-              .toList(),
-          selectedItemBuilder: (BuildContext context) => _item
-              .map((e) => Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        child: Image.asset('images/${e}.png'),
-                      ),
-                      SizedBox(width: 5),
-                      Text(e)
-                    ],
-                  ))
-              .toList(),
+          },
+          items: _categoryDataList.map((category) {
+            return DropdownMenuItem<String>(
+              value: category.name,
+              child: Container(
+                alignment: Alignment.center,
+                child: Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Text(
+                      category.name,
+                      style: TextStyle(fontSize: 18),
+                    )
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+          selectedItemBuilder: (BuildContext context) {
+            return _categoryDataList.map((category) {
+              return Row(
+                children: [
+                  SizedBox(width: 5),
+                  Text(category.name)
+                ],
+              );
+            }).toList();
+          },
           hint: Padding(
             padding: const EdgeInsets.only(top: 12),
             child: Text(
@@ -311,7 +346,7 @@ class _Add_ScreenState extends State<Add_Screen> {
       ),
     );
   }
-
+  
   Column background_container(BuildContext context) {
     return Column(
       children: [

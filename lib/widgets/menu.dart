@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:managment/Screens/lancamento.dart';
+import 'package:managment/Screens/new_category.dart';
+import 'package:managment/Screens/new_register.dart';
 import 'package:managment/Screens/home.dart';
 import 'package:managment/Screens/statistics.dart';
 import 'package:managment/Screens/category.dart';
@@ -17,7 +18,8 @@ class Bottom extends StatefulWidget {
 
 class _BottomState extends State<Bottom> {
   int index_color = 0;
-  List Screen = [Home(), Statistics(), Category(), app_settings.Settings()];
+  List Screen = [Home(), Statistics(), Category(), Settings()];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +27,7 @@ class _BottomState extends State<Bottom> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => Add_Screen()));
+              .push(MaterialPageRoute(builder: (context) => index_color == 2 ? Add_Category(): Add_Screen()));
         },
         child: Icon(Icons.add),
         backgroundColor: Color(0xff368983),
