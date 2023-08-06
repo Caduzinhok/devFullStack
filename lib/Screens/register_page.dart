@@ -188,7 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
           registrar();
         },
         style: ElevatedButton.styleFrom(
-          primary: Color(0xff368983), // Cor verde definida por hexadecimal
+          backgroundColor: Color(0xff368983), // Cor verde definida por hexadecimal
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

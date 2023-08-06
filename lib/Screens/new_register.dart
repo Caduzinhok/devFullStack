@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:managment/data/model/add_date.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+
+import '../data/model/add_date_principal.dart';
+import '../widgets/menu.dart';
 
 class Add_Screen extends StatefulWidget {
   const Add_Screen({super.key});
@@ -10,15 +11,14 @@ class Add_Screen extends StatefulWidget {
   State<Add_Screen> createState() => _Add_ScreenState();
 }
 
+// Classe que representa os dados de cada categoria
 class CategoryData {
   final String name;
   final String description;
-
   CategoryData({required this.name, required this.description});
 }
 
 class _Add_ScreenState extends State<Add_Screen> {
-  final box = Hive.box<Add_data>('data');
   List<CategoryData> _categoryDataList = [];
   DateTime date = new DateTime.now();
   String? selctedItem;
@@ -27,12 +27,6 @@ class _Add_ScreenState extends State<Add_Screen> {
   FocusNode ex = FocusNode();
   final TextEditingController amount_c = TextEditingController();
   FocusNode amount_ = FocusNode();
-  final List<String> _item = [
-    'Comida',
-    "Transferência",
-    "Transporte",
-    "Educação"
-  ];
   final List<String> _itemei = [
     'Renda',
     "Despesa",
@@ -51,14 +45,14 @@ class _Add_ScreenState extends State<Add_Screen> {
 
   // Função para buscar os dados do Firebase
   Future<void> fetchDataFromFirebase() async {
-    List<CategoryData> data = await getDataFromFirebase();
+    List<CategoryData> CategoryDataList = await getDataFromFirebase();
     setState(() {
-      _categoryDataList = data;
+      _categoryDataList = CategoryDataList;
     });
   }
 
   Future<List<CategoryData>> getDataFromFirebase() async {
-    List<CategoryData> _categoryList = [];
+    List<CategoryData> _CategoryDataList = [];
 
     try {
       QuerySnapshot querySnapshot =
@@ -72,10 +66,10 @@ class _Add_ScreenState extends State<Add_Screen> {
         );
 
         // Adiciona o CategoryData à lista
-        _categoryList.add(categoryData);
+        _CategoryDataList.add(categoryData);
       });
 
-      return _categoryList;
+      return _CategoryDataList;
     } catch (e) {
       print('Erro ao buscar dados no Firebase: $e');
       return [];
@@ -130,10 +124,9 @@ class _Add_ScreenState extends State<Add_Screen> {
   GestureDetector save() {
     return GestureDetector(
       onTap: () {
-        var add = Add_data(
-            selctedItemi!, amount_c.text, date, expalin_C.text, selctedItem!);
-        box.add(add);
+        saveToFirebasePrincipal(context,selctedItem!, expalin_C.text, amount_c.text, selctedItemi!,date);
         Navigator.of(context).pop();
+        setState(() {Bottom();});
       },
       child: Container(
         alignment: Alignment.center,
@@ -285,7 +278,7 @@ class _Add_ScreenState extends State<Add_Screen> {
     );
   }
 
-Padding name() {
+  Padding name() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Container(
@@ -335,7 +328,7 @@ Padding name() {
           hint: Padding(
             padding: const EdgeInsets.only(top: 12),
             child: Text(
-              'Nome',
+              'Categoria',
               style: TextStyle(color: Colors.grey),
             ),
           ),

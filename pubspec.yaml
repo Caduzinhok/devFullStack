@@ -30,24 +30,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  syncfusion_flutter_charts: ^20.2.44
+  syncfusion_flutter_charts: ^22.2.7
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  intl: ^0.17.0
+  intl: ^0.18.1
   cupertino_icons: ^1.0.2
   firebase_core: ^2.15.0
   firebase_auth: ^4.7.1
   cloud_firestore: ^4.8.3
-  provider: ^5.0.0
+  provider: ^6.0.5
   shared_preferences: ^2.0.6
   path_provider: ^2.0.2
   sqflite: ^2.0.0+3
-  fl_chart: ^0.36.2
+  fl_chart: ^0.63.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  hive_generator: ^1.1.3
+  hive_generator: ^2.0.0
   build_runner: ^2.2.0
 
   # The "flutter_lints" package below contains a set of recommended lints to

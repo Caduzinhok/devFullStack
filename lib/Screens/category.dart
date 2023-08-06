@@ -50,7 +50,7 @@ return Scaffold(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Histórico de Transações',
+                      'Histórico de Categorias',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 19,

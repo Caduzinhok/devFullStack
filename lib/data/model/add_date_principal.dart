@@ -3,14 +3,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../widgets/menu.dart';
 
-void saveToFirebaseCategory(BuildContext context, String name, String Description) {
+void saveToFirebasePrincipal(BuildContext context, String category, String description, String amount, String type, DateTime dataRegister) {
   // Crie uma referência para a coleção "dados" no Cloud Firestore
-  CollectionReference dataCollection = FirebaseFirestore.instance.collection('categorias');
+  CollectionReference dataCollection = FirebaseFirestore.instance.collection('lancamentos');
 
   // Crie um mapa com os dados que deseja salvar
   var data = {
-    'name': name,
-    'description': Description,
+    'category': category,
+    'description': description,
+    'amount': amount,
+    'type': type,
+    'dataRegister': Timestamp.fromDate(dataRegister),
+
   };
 
   // Adicione os dados à coleção no Firebase

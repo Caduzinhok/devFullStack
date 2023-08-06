@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:managment/Screens/register_page.dart';
-import '../widgets/menu.dart';
+import 'package:managment/widgets/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:managment/Services/auth_service.dart';
 
@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-    void _showErrorAlert(BuildContext context) {
+  void _showErrorAlert(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -66,6 +66,7 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
   }
+  
   bool isLogin = true;
   late String titulo;
   late String actionButton;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
-import 'package:managment/data/model/add_date.dart';
 import 'package:managment/data/utlity.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -10,9 +9,19 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
+// Classe que representa os dados de cada categoria
+class PrincipalData {
+  final String category;
+  final String description;
+  final String amount;
+  final String type;
+  final DateTime dataRegister;
+  PrincipalData({required this.category, required this.description,required this.type, required this.amount, required this.dataRegister});
+}
+
 class _HomeState extends State<Home> {
-  var history;
-  final box = Hive.box<Add_data>('data');
+  List<PrincipalData> principalDataList = [];
+
   final List<String> day = [
     'Segunda',
     "Terça",
@@ -22,97 +31,148 @@ class _HomeState extends State<Home> {
     'Sábado',
     'Domingo'
   ];
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-          child: ValueListenableBuilder(
-              valueListenable: box.listenable(),
-              builder: (context, value, child) {
-                return CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: 340, child: _head()),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Histórico de Transações',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 19,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              'Ver Tudo',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          history = box.values.toList()[index];
-                          return getList(history, index);
-                        },
-                        childCount: box.length,
-                      ),
-                    )
-                  ],
-                );
-              })),
-    );
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: SafeArea(
+      child: Column(
+        children: [
+          // Seu _head() widget com altura definida
+          SizedBox(height: 340, child: _head()),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Histórico de Transações',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 19,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  'Ver Tudo',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            // Aqui você pode colocar o seu FutureBuilder ou qualquer outra lista de conteúdos
+            child: FutureBuilder<List<PrincipalData>>(
+              future: getDataFromFirebase(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Erro ao buscar dados no Firebase: ${snapshot.error}'),
+                  );
+                } else {
+                  return getList(snapshot.data!);
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+  
+Future<List<PrincipalData>> getDataFromFirebase() async {
+  try {
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('lancamentos').get();
+
+    List<PrincipalData> principalDataList = [];
+
+    querySnapshot.docs.forEach((doc) {
+      // Recupera os dados do documento e cria uma instância de PrincipalData
+      PrincipalData principalData = PrincipalData(
+        category: doc['category'],
+        description: doc['description'],
+        type: doc['type'],
+        amount: doc['amount'],
+        dataRegister: (doc['dataRegister'] as Timestamp).toDate(),
+      );
+
+      // Adiciona o PrincipalData à lista
+      principalDataList.add(principalData);
+      print("Dados Salvos");
+
+    });
+
+    return principalDataList;
+  } catch (e) {
+    print('Error fetching data from Firebase: $e');
+    return []; // Return an empty list in case of an error
   }
+}
 
-
-  Widget getList(Add_data history, int index) {
-    return Dismissible(
+  Widget getList(List<PrincipalData> principalDataList) {
+  return ListView.builder(
+    itemCount: principalDataList.length,
+    itemBuilder: (context, index) {
+      return Dismissible(
         key: UniqueKey(),
         onDismissed: (direction) {
-          history.delete();
+          // Aqui você pode adicionar a lógica para excluir o item, se necessário.
+          // principalDataList[index].delete();
         },
-        child: get(index, history));
-  }
+        child: get(principalDataList[index]),
+      );
+    },
+  );
+}
 
-  ListTile get(int index, Add_data history) {
-    return ListTile(
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(5),
-        child: Image.asset('images/${history.name}.png', height: 40),
+ListTile get(PrincipalData principalData) {
+  return ListTile(
+    title: Text(
+      principalData.description,
+      style: TextStyle(
+        fontSize: 17,
+        fontWeight: FontWeight.w600,
       ),
-      title: Text(
-        history.name,
-        style: TextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
+    ),
+    subtitle: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${day[principalData.dataRegister.weekday - 1]}  ${principalData.dataRegister.year}-${principalData.dataRegister.day}-${principalData.dataRegister.month}',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
         ),
-      ),
-      subtitle: Text(
-        '${day[history.datetime.weekday - 1]}  ${history.datetime.year}-${history.datetime.day}-${history.datetime.month}',
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
+        Text(
+          principalData.category,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
         ),
+      ],
+    ),
+    trailing: Text(
+      principalData.amount.toString(),
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+        fontSize: 19,
+        color: principalData.type == 'Renda' ? Colors.green : Colors.red,
       ),
-      trailing: Text(
-        history.amount,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 19,
-          color: history.IN == 'Renda' ? Colors.green : Colors.red,
-        ),
-      ),
-    );
+    ),
+  );
   }
 
   Widget _head() {
@@ -320,4 +380,5 @@ class _HomeState extends State<Home> {
       ],
     );
   }
+
 }

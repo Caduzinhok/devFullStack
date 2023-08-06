@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:managment/data/model/add_date.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:managment/Screens/category.dart';
 
 import '../data/model/add_date_category.dart';
 
@@ -12,7 +11,6 @@ class Add_Category extends StatefulWidget {
 }
 
 class _Add_CategoryState extends State<Add_Category> {
-  final box = Hive.box<Add_data>('data');
   DateTime date = new DateTime.now();
   String? selctedItem;
   String? selctedItemi;
@@ -66,8 +64,10 @@ class _Add_CategoryState extends State<Add_Category> {
   GestureDetector save() {
     return GestureDetector(
       onTap: () {
-        saveToFirebase(context,name_c.text, expalin_C.text);
+        saveToFirebaseCategory(context,name_c.text, expalin_C.text);
         Navigator.of(context).pop();
+        setState(() {Category();});
+
       },
       child: Container(
         alignment: Alignment.center,
