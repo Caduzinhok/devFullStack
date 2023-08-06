@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:managment/Screens/login_page.dart';
 import 'package:provider/provider.dart';
 import 'package:managment/Services/auth_service.dart';
+import 'package:managment/widgets/menu.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key? key}) : super(key: key);

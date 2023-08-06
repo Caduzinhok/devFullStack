@@ -1,14 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:managment/Screens/new_category.dart';
 import 'package:managment/Screens/new_register.dart';
 import 'package:managment/Screens/home.dart';
 import 'package:managment/Screens/statistics.dart';
 import 'package:managment/Screens/category.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore_platform_interface/src/settings.dart' as firestore_settings;
-import 'package:managment/Screens/settings.dart' as app_settings;
 
+import '../Screens/settings.dart';
 class Bottom extends StatefulWidget {
   const Bottom({Key? key}) : super(key: key);
 
