@@ -47,3 +47,6 @@ app.*.map.json
 /android/app/release
 **/ios/firebase_app_id_file.json
 **/android/google-services.json
+
+# API Keys
+**/lib/Configs/firebase_options.dart
