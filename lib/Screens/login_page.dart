@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:managment/Screens/register_page.dart';
+import 'package:managment/Screens/statistics.dart';
+import '../widgets/auth_check.dart';
 import '../widgets/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:managment/Services/auth_service.dart';
@@ -17,55 +20,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  void _signInWithEmailAndPassword(BuildContext context) async {
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Bottom(),
-        ),
-      );
-      // Login bem-sucedido, você pode navegar para a próxima tela aqui.
-    } catch (e) {
-      _showErrorAlert(context);
-      // Trate erros de autenticação aqui (por exemplo, exiba uma mensagem de erro na tela).
-    }
-  }
-
-    void _showErrorAlert(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'ERRO',
-            style: TextStyle(color: Colors.red),
-          ),
-          content: Text('Usuário ou senha incorreto, por favor verifique.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'FECHAR',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: Colors.red, width: 2),
-          ),
-        );
-      },
-    );
-  }
   bool isLogin = true;
   late String titulo;
   late String actionButton;
@@ -85,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
       isLogin = acao;
       if (isLogin) {
         titulo = 'Bem vindo';
-        actionButton = 'Login';
+        actionButton = 'Entrar';
         toggleButton = 'Ainda não tem conta? Cadastre-se agora.';
       }
     });
@@ -95,17 +49,12 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => loading = true);
     try {
       await context.read<AuthService>().login(emailController.text, passwordController.text);
-    } on AuthException catch (e) {
-      setState(() => loading = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
-    }
-  }
-
-  registrar() async {
-    setState(() => loading = true);
-    try {
-      await context.read<AuthService>().registrar(emailController.text, passwordController.text);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Bottom(), // Substitua "NextScreen" pelo nome da próxima tela.
+        ),
+      );
     } on AuthException catch (e) {
       setState(() => loading = false);
       ScaffoldMessenger.of(context)
@@ -197,7 +146,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
   Padding textButton(){
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -214,13 +162,13 @@ class _LoginPageState extends State<LoginPage> {
         ),
     );
   }
-
   Padding save() {
     return Padding(
       padding: EdgeInsets.all(24.0),
       child: ElevatedButton(
         onPressed: () {
-          login();
+            setFormAction(!isLogin);
+            login();
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Color(0xff368983), // Cor verde definida por hexadecimal
@@ -267,6 +215,36 @@ class _LoginPageState extends State<LoginPage> {
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
             ),
+          ),
+          child: Column(
+            children: [
+              SizedBox(height: 40),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text(
+                    'Login',
+                    style: TextStyle(fontSize: 20.0,
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                  ),
+                )
+              )
+            ],
           ),
         ),
       ],
