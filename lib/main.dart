@@ -4,7 +4,7 @@ import 'package:managment/widgets/auth_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'Services/auth_service.dart';
-import 'data/firebase_options.dart';
+import 'Configs/firebase_options.dart';
 import 'data/model/add_date.dart';
 
 void main() async {
