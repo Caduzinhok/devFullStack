@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
       isLogin = acao;
       if (isLogin) {
         titulo = 'Bem vindo';
-        actionButton = 'Login';
+        actionButton = 'Entrar';
         toggleButton = 'Ainda não tem conta? Cadastre-se agora.';
       }
     });
@@ -96,17 +96,12 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => loading = true);
     try {
       await context.read<AuthService>().login(emailController.text, passwordController.text);
-    } on AuthException catch (e) {
-      setState(() => loading = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
-    }
-  }
-
-  registrar() async {
-    setState(() => loading = true);
-    try {
-      await context.read<AuthService>().registrar(emailController.text, passwordController.text);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Bottom(), // Substitua "NextScreen" pelo nome da próxima tela.
+        ),
+      );
     } on AuthException catch (e) {
       setState(() => loading = false);
       ScaffoldMessenger.of(context)
@@ -198,7 +193,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
   Padding textButton(){
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -215,13 +209,13 @@ class _LoginPageState extends State<LoginPage> {
         ),
     );
   }
-
   Padding save() {
     return Padding(
       padding: EdgeInsets.all(24.0),
       child: ElevatedButton(
         onPressed: () {
-          login();
+            setFormAction(!isLogin);
+            login();
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Color(0xff368983), // Cor verde definida por hexadecimal
@@ -268,6 +262,36 @@ class _LoginPageState extends State<LoginPage> {
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.circular(20),
             ),
+          ),
+          child: Column(
+            children: [
+              SizedBox(height: 40),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Text(
+                    'Login',
+                    style: TextStyle(fontSize: 20.0,
+                                  color: Color.fromARGB(255, 255, 255, 255)),
+                  ),
+                )
+              )
+            ],
           ),
         ),
       ],
