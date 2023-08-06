@@ -1,40 +1,71 @@
 import 'package:hive/hive.dart';
 import 'package:managment/data/model/add_date.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 int totals = 0;
 
 final box = Hive.box<Add_data>('data');
 
-int total() {
-  var history2 = box.values.toList();
-  List a = [0, 0];
-  for (var i = 0; i < history2.length; i++) {
-    a.add(history2[i].IN == 'Renda'
-        ? int.parse(history2[i].amount)
-        : int.parse(history2[i].amount) * -1);
+Future<double> totalLancamentos() async {
+  double valorTotal = 0;
+
+  try {
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').get();
+
+    List<double> amounts = snapshot.docs.map((doc) {
+      double amount = double.parse(doc['amount']);
+      return doc['type'] == 'Renda' ? amount : -amount;
+    }).toList();
+
+    valorTotal = amounts.reduce((value, element) => value + element);
+  } catch (e) {
+    return 0;
   }
-  totals = a.reduce((value, element) => value + element);
-  return totals;
+  String numeroArredondado = valorTotal.toStringAsFixed(2); // Arredonda para duas casas decimais
+  double valorTotalDouble = double.parse(numeroArredondado); // Converte de volta para double
+
+  return valorTotalDouble;
 }
 
-int Renda() {
-  var history2 = box.values.toList();
-  List a = [0, 0];
-  for (var i = 0; i < history2.length; i++) {
-    a.add(history2[i].IN == 'Renda' ? int.parse(history2[i].amount) : 0);
+Future<double> Renda() async {
+  try {
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').get();
+
+    double totalRenda = 0.0;
+
+    snapshot.docs.forEach((doc) {
+      if (doc['type'] == 'Renda') {
+        totalRenda += double.parse(doc['amount']);
+      }
+    });
+  String numeroArredondado = totalRenda.toStringAsFixed(2); // Arredonda para duas casas decimais
+  double totalRendaDouble = double.parse(numeroArredondado); //
+    return totalRendaDouble;
+  } catch (e) {
+    print('Error fetching data from Firebase: $e');
+    return 0; // Retorna 0 em caso de erro
   }
-  totals = a.reduce((value, element) => value + element);
-  return totals;
 }
 
-int expenses() {
-  var history2 = box.values.toList();
-  List a = [0, 0];
-  for (var i = 0; i < history2.length; i++) {
-    a.add(history2[i].IN == 'Renda' ? 0 : int.parse(history2[i].amount) * -1);
+Future<double> Expenses() async {
+  try {
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').get();
+
+    double totalExpenses = 0.0;
+
+    snapshot.docs.forEach((doc) {
+      if (doc['type'] != 'Renda') {
+        totalExpenses += double.parse(doc['amount']);
+      }
+    });
+
+  String numeroArredondado = totalExpenses.toStringAsFixed(2); // Arredonda para duas casas decimais
+  double totalExpensesDouble = double.parse(numeroArredondado); //
+    return totalExpensesDouble;
+  } catch (e) {
+    print('Error fetching data from Firebase: $e');
+    return 0; // Retorna 0 em caso de erro
   }
-  totals = a.reduce((value, element) => value + element);
-  return totals;
 }
 
 List<Add_data> today() {
