@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:managment/Services/auth_service.dart';
 import 'package:managment/widgets/menu.dart';
 
+import '../data/model/add_date_new_register.dart';
+
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key? key}) : super(key: key);
 
@@ -57,6 +59,8 @@ class _RegisterPageState extends State<RegisterPage> {
           builder: (context) => Bottom(), // Substitua "NextScreen" pelo nome da próxima tela.
         ),
       );
+      saveToFirebaseRegister(nameController.text, emailController.text);
+
     } on AuthException catch (e) {
       setState(() => loading = false);
       ScaffoldMessenger.of(context)
