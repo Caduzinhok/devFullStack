@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:managment/data/utlity.dart';
 import 'package:managment/widgets/chart.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../data/model/add_date.dart';
+import '../data/model/get_data_user.dart';
 
 class Statistics extends StatefulWidget {
   const Statistics({Key? key}) : super(key: key);
@@ -11,28 +12,88 @@ class Statistics extends StatefulWidget {
   State<Statistics> createState() => _StatisticsState();
 }
 
+class PrincipalData {
+  final String category;
+  final String description;
+  final String amount;
+  final String type;
+  final DateTime dataRegister;
+  PrincipalData(
+      {required this.category,
+      required this.description,
+      required this.type,
+      required this.amount,
+      required this.dataRegister});
+}
+
 ValueNotifier kj = ValueNotifier(0);
 
 class _StatisticsState extends State<Statistics> {
   List day = ['Dia', 'Semana', 'Mês', 'Ano'];
   List f = [today(), week(), month(), year()];
-  List<Add_data> a = [];
   int index_color = 0;
+  List<PrincipalData> principalDataList = [];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ValueListenableBuilder(
-          valueListenable: kj,
-          builder: (BuildContext context, dynamic value, Widget? child) {
-            a = f[value];
-            return custom();
-          },
-        ),
-      ),
-    );
+  Future<List<PrincipalData>> getDataFromFirebase() async {
+    try {
+      String email = await getEmailNameCurrentUser();
+
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('lancamentos')
+          .where('email', isEqualTo: email)
+          .get();
+
+      List<PrincipalData> principalDataList = [];
+
+      querySnapshot.docs.forEach((doc) {
+        // Recupera os dados do documento e cria uma instância de PrincipalData
+        PrincipalData principalData = PrincipalData(
+          category: doc['category'],
+          description: doc['description'],
+          type: doc['type'],
+          amount: doc['amount'],
+          dataRegister: (doc['dataRegister'] as Timestamp).toDate(),
+        );
+
+        // Adiciona o PrincipalData à lista
+        principalDataList.add(principalData);
+        print("Dados Salvos");
+      });
+
+      return principalDataList;
+    } catch (e) {
+      print('Error fetching data from Firebase: $e');
+      return []; // Return an empty list in case of an error
+    }
   }
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: SafeArea(
+      child: FutureBuilder<List<PrincipalData>>(
+        future: getDataFromFirebase(),
+        builder: (BuildContext context, AsyncSnapshot<List<PrincipalData>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // Loading indicator while fetching data
+          } else if (snapshot.hasError) {
+            return Text('Error fetching data'); // Display an error message if data fetch fails
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Text('No data available'); // Display a message if there's no data
+          } else {
+            principalDataList = snapshot.data!; // Assign fetched data to the list
+            return ValueListenableBuilder(
+              valueListenable: kj,
+              builder: (BuildContext context, dynamic value, Widget? child) {
+                return custom();
+              },
+            );
+          }
+        },
+      ),
+    ),
+  );
+}
 
   CustomScrollView custom() {
     return CustomScrollView(
@@ -124,34 +185,30 @@ class _StatisticsState extends State<Statistics> {
             delegate: SliverChildBuilderDelegate(
           (context, index) {
             return ListTile(
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(5),
-                child: Image.asset('images/${a[index].name}.png', height: 40),
-              ),
               title: Text(
-                a[index].name,
+                principalDataList[index].description,
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               subtitle: Text(
-                ' ${a[index].datetime.year}-${a[index].datetime.day}-${a[index].datetime.month}',
+                ' ${principalDataList[index].dataRegister.year}-${principalDataList[index].dataRegister.day}-${principalDataList[index].dataRegister.month}',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               trailing: Text(
-                a[index].amount,
+                principalDataList[index].amount,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 19,
-                  color: a[index].IN == 'Renda' ? Colors.green : Colors.red,
+                  color: principalDataList[index].type == 'Renda' ? Colors.green : Colors.red,
                 ),
               ),
             );
           },
-          childCount: a.length,
+          childCount: principalDataList.length,
         ))
       ],
     );
