@@ -1,11 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
-import 'package:managment/data/model/add_date.dart';
 import 'package:managment/data/utlity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:managment/Services/auth_service.dart';
-
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -39,7 +35,14 @@ class UserData {
 class _HomeState extends State<Home> {
   List<PrincipalData> principalDataList = [];
   UserData ud = new UserData(nome: "", email: "");
+  late FirebaseAuth _auth; // Declare the FirebaseAuth instance
+  FirebaseFirestore firestoreEmail = FirebaseFirestore.instance;
 
+  @override
+  void initState() {
+    super.initState();
+    _auth = FirebaseAuth.instance; // Initialize it in the constructor
+  }
   final List<String> day = [
     'Segunda',
     "Terça",
@@ -174,6 +177,35 @@ class _HomeState extends State<Home> {
       return null;
     }
   }
+Future<String> getEmailCurrentUser() async {
+  User? user = _auth.currentUser;
+  String name = "";
+
+  if (user != null) {
+    String userEmail = user.email!;
+    try {
+      final querySnapshot = await firestoreEmail
+          .collection('cadastro')
+          .where('email', isEqualTo: userEmail)
+          .get();
+
+      querySnapshot.docs.forEach((DocumentSnapshot doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        name = data['name'] as String;
+      });
+
+      print(name);
+      return name;
+    } catch (error) {
+      print('Erro ao buscar dados: $error');
+      return "";
+    }
+  } else {
+    print('Nenhum usuário logado.');
+    return name;
+  }
+}
+
 
   Widget getList(List<PrincipalData> principalDataList) {
     return ListView.builder(
@@ -204,7 +236,7 @@ class _HomeState extends State<Home> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${day[principalData.dataRegister.weekday - 1]}  ${principalData.dataRegister.year}-${principalData.dataRegister.day}-${principalData.dataRegister.month}',
+            '${principalData.dataRegister.weekday - 1}  ${principalData.dataRegister.year}-${principalData.dataRegister.day}-${principalData.dataRegister.month}',
             style: TextStyle(
               fontWeight: FontWeight.w600,
             ),
@@ -243,6 +275,10 @@ class _HomeState extends State<Home> {
               builder: (context, snapshotRenda) {
                 double valorDespesa = snapshotRenda.data ?? 0.0;
 
+              return FutureBuilder<String>(
+                future: getEmailCurrentUser(),
+                builder: (context, snapshot) {
+                  String nameUserLogged = snapshot.data ?? "0.0";
                 return Stack(
                   children: [
                     Column(
@@ -292,7 +328,7 @@ class _HomeState extends State<Home> {
                                       ),
                                     ),
                                     Text(
-                                      ud.nome,
+                                      '$nameUserLogged',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 20,
@@ -458,6 +494,9 @@ class _HomeState extends State<Home> {
                     )
                   ],
                 );
+                },
+              );
+
               },
             );
           },
