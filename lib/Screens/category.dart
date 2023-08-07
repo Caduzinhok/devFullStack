@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../data/model/get_data_user.dart';
+
 class Category extends StatefulWidget {
   const Category({Key? key}) : super(key: key);
 
@@ -96,10 +98,11 @@ return Scaffold(
 
   Future<List<CategoryData>> getDataFromFirebase() async {
     List<CategoryData> categoryList = [];
+    String email = await getEmailNameCurrentUser();
 
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('categorias').get();
+          await FirebaseFirestore.instance.collection('categorias').where('email', isEqualTo: email).get();
 
       querySnapshot.docs.forEach((doc) {
         // Recupera os dados do documento e cria uma instância de CategoryData

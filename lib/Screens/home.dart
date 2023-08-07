@@ -2,6 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:managment/data/utlity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../data/model/get_data_user.dart';
+
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -27,22 +30,14 @@ class PrincipalData {
 class UserData {
   final String email;
   final String nome;
-  UserData(
-      {required this.nome,
-        required this.email});
+  UserData({required this.nome, required this.email});
 }
 
 class _HomeState extends State<Home> {
   List<PrincipalData> principalDataList = [];
   UserData ud = new UserData(nome: "", email: "");
-  late FirebaseAuth _auth; // Declare the FirebaseAuth instance
   FirebaseFirestore firestoreEmail = FirebaseFirestore.instance;
 
-  @override
-  void initState() {
-    super.initState();
-    _auth = FirebaseAuth.instance; // Initialize it in the constructor
-  }
   final List<String> day = [
     'Segunda',
     "Terça",
@@ -116,8 +111,12 @@ class _HomeState extends State<Home> {
 
   Future<List<PrincipalData>> getDataFromFirebase() async {
     try {
-      QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('lancamentos').get();
+      String email = await getEmailNameCurrentUser();
+
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('lancamentos')
+          .where('email', isEqualTo: email)
+          .get();
 
       List<PrincipalData> principalDataList = [];
 
@@ -150,7 +149,8 @@ class _HomeState extends State<Home> {
         String userEmail = user.email ?? '';
 
         // Acesse o documento do usuário na coleção "cadastro" usando o email como filtro de consulta
-        QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+        QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+            .instance
             .collection('cadastro')
             .where('email', isEqualTo: userEmail)
             .get();
@@ -160,7 +160,8 @@ class _HomeState extends State<Home> {
           // Obtém o nome do usuário a partir do documento
           String? nomeUsuario = snapshot.docs[0].data()['nome'];
           String? emailUsuario = snapshot.docs[0].data()['email'];
-          ud = UserData(nome: nomeUsuario.toString(), email: emailUsuario.toString());
+          ud = UserData(
+              nome: nomeUsuario.toString(), email: emailUsuario.toString());
 
           return nomeUsuario;
         } else {
@@ -177,35 +178,6 @@ class _HomeState extends State<Home> {
       return null;
     }
   }
-Future<String> getEmailCurrentUser() async {
-  User? user = _auth.currentUser;
-  String name = "";
-
-  if (user != null) {
-    String userEmail = user.email!;
-    try {
-      final querySnapshot = await firestoreEmail
-          .collection('cadastro')
-          .where('email', isEqualTo: userEmail)
-          .get();
-
-      querySnapshot.docs.forEach((DocumentSnapshot doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        name = data['name'] as String;
-      });
-
-      print(name);
-      return name;
-    } catch (error) {
-      print('Erro ao buscar dados: $error');
-      return "";
-    }
-  } else {
-    print('Nenhum usuário logado.');
-    return name;
-  }
-}
-
 
   Widget getList(List<PrincipalData> principalDataList) {
     return ListView.builder(
@@ -275,228 +247,229 @@ Future<String> getEmailCurrentUser() async {
               builder: (context, snapshotRenda) {
                 double valorDespesa = snapshotRenda.data ?? 0.0;
 
-              return FutureBuilder<String>(
-                future: getEmailCurrentUser(),
-                builder: (context, snapshot) {
-                  String nameUserLogged = snapshot.data ?? "0.0";
-                return Stack(
-                  children: [
-                    Column(
+                return FutureBuilder<String>(
+                  future: getDisplayNameCurrentUser(),
+                  builder: (context, snapshot) {
+                    String nameUserLogged = snapshot.data ?? "0.0";
+                    return Stack(
                       children: [
-                        Container(
-                          width: double.infinity,
-                          height: 240,
-                          decoration: BoxDecoration(
-                            color: Color(0xff368983),
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20),
-                            ),
-                          ),
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                top: 35,
-                                left: 340,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(7),
-                                  child: Container(
-                                    height: 40,
-                                    width: 40,
-                                    color: Color.fromRGBO(250, 250, 250, 0.1),
-                                    child: Icon(
-                                      Icons.notification_add_outlined,
-                                      size: 30,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                        Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 240,
+                              decoration: BoxDecoration(
+                                color: Color(0xff368983),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
                                 ),
                               ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 35, left: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Olá,',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 16,
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    top: 35,
+                                    left: 340,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(7),
+                                      child: Container(
+                                        height: 40,
+                                        width: 40,
                                         color:
-                                            Color.fromARGB(255, 224, 223, 223),
+                                            Color.fromRGBO(250, 250, 250, 0.1),
+                                        child: Icon(
+                                          Icons.notification_add_outlined,
+                                          size: 30,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
-                                    Text(
-                                      '$nameUserLogged',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 20,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 35, left: 10),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Olá,',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16,
+                                            color: Color.fromARGB(
+                                                255, 224, 223, 223),
+                                          ),
+                                        ),
+                                        Text(
+                                          '$nameUserLogged',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          top: 140,
+                          left: 37,
+                          child: Container(
+                            height: 170,
+                            width: 320,
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromRGBO(47, 125, 121, 0.3),
+                                  offset: Offset(0, 6),
+                                  blurRadius: 12,
+                                  spreadRadius: 6,
+                                ),
+                              ],
+                              color: Color.fromARGB(255, 47, 125, 121),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 10),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Balanço Total',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.more_horiz,
                                         color: Colors.white,
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              )
-                            ],
+                                SizedBox(height: 7),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 15),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '\$ $valorTotal',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 25,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 25),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 13,
+                                            backgroundColor: Color.fromARGB(
+                                                255, 85, 145, 141),
+                                            child: Icon(
+                                              Icons.arrow_downward,
+                                              color: Colors.white,
+                                              size: 19,
+                                            ),
+                                          ),
+                                          SizedBox(width: 7),
+                                          Text(
+                                            'Renda',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 16,
+                                              color: Color.fromARGB(
+                                                  255, 216, 216, 216),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 13,
+                                            backgroundColor: Color.fromARGB(
+                                                255, 85, 145, 141),
+                                            child: Icon(
+                                              Icons.arrow_upward,
+                                              color: Colors.white,
+                                              size: 19,
+                                            ),
+                                          ),
+                                          SizedBox(width: 7),
+                                          Text(
+                                            'Despesas',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 16,
+                                              color: Color.fromARGB(
+                                                  255, 216, 216, 216),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 6),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        '\$ $valorRenda',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 17,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        '\$ $valorDespesa',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 17,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
-                        ),
+                        )
                       ],
-                    ),
-                    Positioned(
-                      top: 140,
-                      left: 37,
-                      child: Container(
-                        height: 170,
-                        width: 320,
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromRGBO(47, 125, 121, 0.3),
-                              offset: Offset(0, 6),
-                              blurRadius: 12,
-                              spreadRadius: 6,
-                            ),
-                          ],
-                          color: Color.fromARGB(255, 47, 125, 121),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 10),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Balanço Total',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.more_horiz,
-                                    color: Colors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 7),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 15),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '\$ $valorTotal',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 25,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 25),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 13,
-                                        backgroundColor:
-                                            Color.fromARGB(255, 85, 145, 141),
-                                        child: Icon(
-                                          Icons.arrow_downward,
-                                          color: Colors.white,
-                                          size: 19,
-                                        ),
-                                      ),
-                                      SizedBox(width: 7),
-                                      Text(
-                                        'Renda',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 16,
-                                          color: Color.fromARGB(
-                                              255, 216, 216, 216),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 13,
-                                        backgroundColor:
-                                            Color.fromARGB(255, 85, 145, 141),
-                                        child: Icon(
-                                          Icons.arrow_upward,
-                                          color: Colors.white,
-                                          size: 19,
-                                        ),
-                                      ),
-                                      SizedBox(width: 7),
-                                      Text(
-                                        'Despesas',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 16,
-                                          color: Color.fromARGB(
-                                              255, 216, 216, 216),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '\$ $valorRenda',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 17,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Text(
-                                    '\$ $valorDespesa',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 17,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
+                    );
+                  },
                 );
-                },
-              );
-
               },
             );
           },

@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
-void saveToFirebaseRegister(String name, String email) {
+
+void saveToFirebaseRegister(String name, String email) async {
   // Crie uma referência para a coleção "dados" no Cloud Firestore
   CollectionReference dataCollection = FirebaseFirestore.instance.collection('cadastro');
 

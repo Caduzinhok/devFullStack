@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../data/model/add_date_principal.dart';
+import '../data/model/get_data_user.dart';
 import '../widgets/menu.dart';
 
 class Add_Screen extends StatefulWidget {
@@ -53,10 +54,11 @@ class _Add_ScreenState extends State<Add_Screen> {
 
   Future<List<CategoryData>> getDataFromFirebase() async {
     List<CategoryData> _CategoryDataList = [];
+    String email = await getEmailNameCurrentUser();
 
     try {
       QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('categorias').get();
+          await FirebaseFirestore.instance.collection('categorias').where('email', isEqualTo: email).get();
 
       querySnapshot.docs.forEach((doc) {
         // Recupera os dados do documento e cria uma instância de CategoryData
@@ -75,6 +77,7 @@ class _Add_ScreenState extends State<Add_Screen> {
       return [];
     }
   }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,

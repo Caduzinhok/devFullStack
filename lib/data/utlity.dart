@@ -2,15 +2,18 @@ import 'package:hive/hive.dart';
 import 'package:managment/data/model/add_date.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'model/get_data_user.dart';
+
 int totals = 0;
 
 final box = Hive.box<Add_data>('data');
 
 Future<double> totalLancamentos() async {
   double valorTotal = 0;
+  String email = await getEmailNameCurrentUser();
 
   try {
-    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').get();
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').where('email', isEqualTo: email).get();
 
     List<double> amounts = snapshot.docs.map((doc) {
       double amount = double.parse(doc['amount']);
@@ -28,8 +31,9 @@ Future<double> totalLancamentos() async {
 }
 
 Future<double> Renda() async {
+  String email = await getEmailNameCurrentUser();
   try {
-    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').get();
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').where('email', isEqualTo: email).get();
 
     double totalRenda = 0.0;
 
@@ -48,8 +52,10 @@ Future<double> Renda() async {
 }
 
 Future<double> Expenses() async {
+  String email = await getEmailNameCurrentUser();
+
   try {
-    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').get();
+    final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').where('email', isEqualTo: email).get();
 
     double totalExpenses = 0.0;
 

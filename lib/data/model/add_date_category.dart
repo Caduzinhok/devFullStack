@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../widgets/menu.dart';
+import 'get_data_user.dart';
 
-void saveToFirebaseCategory(BuildContext context, String name, String Description) {
+void saveToFirebaseCategory(BuildContext context, String name, String Description) async{
+  String email = await getEmailNameCurrentUser();
   // Crie uma referência para a coleção "dados" no Cloud Firestore
   CollectionReference dataCollection = FirebaseFirestore.instance.collection('categorias');
 
@@ -11,6 +13,7 @@ void saveToFirebaseCategory(BuildContext context, String name, String Descriptio
   var data = {
     'name': name,
     'description': Description,
+    'email': email,
   };
 
   // Adicione os dados à coleção no Firebase
