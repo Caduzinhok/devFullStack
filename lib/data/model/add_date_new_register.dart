@@ -7,7 +7,7 @@ void saveToFirebaseRegister(String name, String email) {
 
   // Crie um mapa com os dados que deseja salvar
   var data = {
-    'name': name,
+    'nome': name,
     'email': email,
   };
 

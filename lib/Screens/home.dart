@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:managment/data/model/add_date.dart';
 import 'package:managment/data/utlity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:managment/Services/auth_service.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -24,8 +28,17 @@ class PrincipalData {
       required this.dataRegister});
 }
 
+class UserData {
+  final String email;
+  final String nome;
+  UserData(
+      {required this.nome,
+        required this.email});
+}
+
 class _HomeState extends State<Home> {
   List<PrincipalData> principalDataList = [];
+  UserData ud = new UserData(nome: "", email: "");
 
   final List<String> day = [
     'Segunda',
@@ -39,6 +52,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    getUserData();
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -123,6 +137,41 @@ class _HomeState extends State<Home> {
     } catch (e) {
       print('Error fetching data from Firebase: $e');
       return []; // Return an empty list in case of an error
+    }
+  }
+
+  Future<String?> getUserData() async {
+    try {
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String userEmail = user.email ?? '';
+
+        // Acesse o documento do usuário na coleção "cadastro" usando o email como filtro de consulta
+        QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+            .collection('cadastro')
+            .where('email', isEqualTo: userEmail)
+            .get();
+
+        // Verifica se o documento com o email do usuário existe e é único
+        if (snapshot.size == 1) {
+          // Obtém o nome do usuário a partir do documento
+          String? nomeUsuario = snapshot.docs[0].data()['nome'];
+          String? emailUsuario = snapshot.docs[0].data()['email'];
+          ud = UserData(nome: nomeUsuario.toString(), email: emailUsuario.toString());
+
+          return nomeUsuario;
+        } else {
+          // O email do usuário logado não foi encontrado ou não é único na coleção "cadastro"
+          return null;
+        }
+      } else {
+        // O usuário não está logado
+        return null;
+      }
+    } catch (e) {
+      // Trate possíveis erros (opcional)
+      print('Erro ao obter o nome do usuário logado: $e');
+      return null;
     }
   }
 
@@ -243,7 +292,7 @@ class _HomeState extends State<Home> {
                                       ),
                                     ),
                                     Text(
-                                      'Carlos Andrade',
+                                      ud.nome,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 20,
