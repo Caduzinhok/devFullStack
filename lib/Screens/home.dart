@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:managment/data/utlity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../data/model/get_data_user.dart';
 
 class Home extends StatefulWidget {
@@ -50,7 +49,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    getUserData();
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -111,7 +109,7 @@ class _HomeState extends State<Home> {
 
   Future<List<PrincipalData>> getDataFromFirebase() async {
     try {
-      String email = await getEmailNameCurrentUser();
+      String? email = await getEmailNameCurrentUser();
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('lancamentos')
@@ -142,42 +140,6 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Future<String?> getUserData() async {
-    try {
-      final User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        String userEmail = user.email ?? '';
-
-        // Acesse o documento do usuário na coleção "cadastro" usando o email como filtro de consulta
-        QuerySnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
-            .instance
-            .collection('cadastro')
-            .where('email', isEqualTo: userEmail)
-            .get();
-
-        // Verifica se o documento com o email do usuário existe e é único
-        if (snapshot.size == 1) {
-          // Obtém o nome do usuário a partir do documento
-          String? nomeUsuario = snapshot.docs[0].data()['nome'];
-          String? emailUsuario = snapshot.docs[0].data()['email'];
-          ud = UserData(
-              nome: nomeUsuario.toString(), email: emailUsuario.toString());
-
-          return nomeUsuario;
-        } else {
-          // O email do usuário logado não foi encontrado ou não é único na coleção "cadastro"
-          return null;
-        }
-      } else {
-        // O usuário não está logado
-        return null;
-      }
-    } catch (e) {
-      // Trate possíveis erros (opcional)
-      print('Erro ao obter o nome do usuário logado: $e');
-      return null;
-    }
-  }
 
   Widget getList(List<PrincipalData> principalDataList) {
     return ListView.builder(
@@ -247,7 +209,7 @@ class _HomeState extends State<Home> {
               builder: (context, snapshotRenda) {
                 double valorDespesa = snapshotRenda.data ?? 0.0;
 
-                return FutureBuilder<String>(
+                return FutureBuilder<String?>(
                   future: getDisplayNameCurrentUser(),
                   builder: (context, snapshot) {
                     String nameUserLogged = snapshot.data ?? "0.0";

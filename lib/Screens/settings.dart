@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:managment/Screens/home.dart';
 import 'package:managment/Services/auth_service.dart';
+import 'package:managment/data/model/get_data_user.dart';
 import 'package:provider/provider.dart';
 
 import 'login_page.dart';
@@ -15,7 +18,7 @@ class Settings extends StatefulWidget {
 ValueNotifier kj = ValueNotifier(0);
 
 class _SettingsState extends State<Settings> {
-
+  User? _user = FirebaseAuth.instance.currentUser;
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -52,23 +55,68 @@ class _SettingsState extends State<Settings> {
       ),
     );
   }
-  Padding infoUser(){
-    return Padding(
-      padding: EdgeInsets.all(24.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Meus dados',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget infoUser(){
+    return FutureBuilder<String?>(
+      future: getDisplayNameCurrentUser(),
+      builder: (context, snapshot) {
+        String nameUserLogged = snapshot.data ?? "0.0";
+        return FutureBuilder<String?>(
+          future: getEmailNameCurrentUser(),
+          builder: (context, snapshotEmail) {
+            String emailUserLogged = snapshotEmail.data ?? "0.0";
+            return Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: 10, left: 24.0),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Meus dados',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ]
+                  ),
+
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 50.0, left: 24),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Nome: ' + '$nameUserLogged',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 80, left: 24),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Email: ' + '$emailUserLogged',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            );
+          },
+        );
+      }
+      );
   }
   void fazerLogout() async {
     AuthService authService = AuthService(); // instância da classe AuthService
@@ -87,10 +135,9 @@ class _SettingsState extends State<Settings> {
       child: ElevatedButton(
         onPressed: () {
           fazerLogout();
-          Navigator.pushAndRemoveUntil(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => LoginPage()),
-                (route) => false, // Remova todas as rotas existentes
           );
         },
         style: ElevatedButton.styleFrom(

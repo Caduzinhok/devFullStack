@@ -98,7 +98,7 @@ return Scaffold(
 
   Future<List<CategoryData>> getDataFromFirebase() async {
     List<CategoryData> categoryList = [];
-    String email = await getEmailNameCurrentUser();
+    String? email = await getEmailNameCurrentUser();
 
     try {
       QuerySnapshot querySnapshot =

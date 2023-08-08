@@ -6,7 +6,7 @@ import 'get_data_user.dart';
 
 void saveToFirebasePrincipal(BuildContext context, String category, String description, String amount, String type, DateTime dataRegister) async{
   // Crie uma referência para a coleção "dados" no Cloud Firestore
-  String email = await getEmailNameCurrentUser();
+  String? email = await getEmailNameCurrentUser();
 
   CollectionReference dataCollection = FirebaseFirestore.instance.collection('lancamentos');
 
