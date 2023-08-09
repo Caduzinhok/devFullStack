@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:managment/data/model/add_date.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 
 import '../data/model/get_data_user.dart';
+
 class PrincipalData {
   final String category;
   final String description;
@@ -28,13 +28,17 @@ class Chart extends StatefulWidget {
 }
 
 class _ChartState extends State<Chart> {
-  List<Add_data>? a;
   List<PrincipalData> principalDataList = [];
-
   bool b = true;
   bool j = true;
+  String selectedCategory = "";
+  void _onCategorySelected(String category) {
+    setState(() {
+      selectedCategory = category;
+    });
+  }
 
-  Future<List<PrincipalData>> getDataFromFirebase() async {
+  Future<List<PrincipalData>> getDataFromFirebase({String? category}) async {
     try {
       String email = await getEmailNameCurrentUser();
 
@@ -56,8 +60,10 @@ class _ChartState extends State<Chart> {
         );
 
         // Adiciona o PrincipalData à lista
-        principalDataList.add(principalData);
-        print("Dados Salvos");
+        if (category == null || category == principalData.category) {
+          principalDataList.add(principalData);
+          print("Dados Salvos");
+        }
       });
 
       return principalDataList;
@@ -67,93 +73,163 @@ class _ChartState extends State<Chart> {
     }
   }
 
-bool isWithinYear(DateTime date1, DateTime date2) {
-  return date1.year == date2.year;
-}
+  bool isWithinWeek(DateTime date1, DateTime date2) {
+    return true;
+  }
 
-bool isWithinMonth(DateTime date1, DateTime date2) {
-  return date1.year == date2.year && date1.month == date2.month;
-}
+  bool isWithinMonth(DateTime date1, DateTime date2) {
+    return true;
+  }
 
-bool isWithinWeek(DateTime date1, DateTime date2) {
-  final difference = date1.difference(date2).inDays.abs();
-  return difference <= 7;
-}
+  bool isWithinYear(DateTime date1, DateTime date2) {
+    return true;
+  }
 
-bool isSameDay(DateTime date1, DateTime date2) {
-  return date1.year == date2.year &&
-      date1.month == date2.month &&
-      date1.day == date2.day;
-}
+  bool isSameDay(DateTime date1, DateTime date2) {
+    return true;
+  }
 
-@override
-Widget build(BuildContext context) {
-  return FutureBuilder<List<PrincipalData>>(
-    future: getDataFromFirebase(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return CircularProgressIndicator();
-      } else if (snapshot.hasError) {
-        return Text('Error fetching data');
-      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        return Text('No data available');
-      } else {
-        List<PrincipalData> a = snapshot.data!;
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<PrincipalData>>(
+      future: getDataFromFirebase(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error fetching data');
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Text('No data available');
+        } else {
+          List<PrincipalData> a = snapshot.data!;
+          selectedCategory = selectedCategory == "" ? a[0].category : selectedCategory;
 
-        List<SalesData> chartData = []; // Store the data for the chart
 
-        switch (widget.index) {
-          case 0:
-            // Logic for today's data
-            chartData = getChartData(a, isSameDay);
-            break;
-          case 1:
-            // Logic for this week's data
-            chartData = getChartData(a, isWithinWeek);
-            break;
-          case 2:
-            // Logic for this month's data
-            chartData = getChartData(a, isWithinMonth);
-            break;
-          case 3:
-            // Logic for this year's data
-            chartData = getChartData(a, isWithinYear);
-            break;
-          default:
-        }
+          List<SalesData> chartData = []; // Store the data for the chart
 
-        return Container(
-          width: double.infinity,
-          height: 300,
-          child: SfCartesianChart(
-            primaryXAxis: CategoryAxis(),
-            series: <SplineSeries<SalesData, String>>[
-              SplineSeries<SalesData, String>(
-                color: Color.fromARGB(255, 47, 125, 121),
-                width: 3,
-                dataSource: chartData,
-                xValueMapper: (SalesData sales, _) => sales.year,
-                yValueMapper: (SalesData sales, _) => sales.sales,
+          switch (widget.index) {
+            case 0:
+              // Logic for today's data
+              chartData = getChartData(a, selectedCategory, isSameDay, 'day');
+              break;
+            case 1:
+              // Logic for this week's data
+              chartData =
+                  getChartData(a, selectedCategory, isWithinWeek, 'week');
+              break;
+            case 2:
+              // Logic for this month's data
+              chartData =
+                  getChartData(a, selectedCategory, isWithinMonth, 'month');
+              break;
+            case 3:
+              // Logic for this year's data
+              chartData =
+                  getChartData(a, selectedCategory, isWithinYear, 'year');
+              break;
+            default:
+          }
+
+          return Column(
+            children: [
+              DropdownButton<String>(
+                value: selectedCategory,
+                hint: Text('Selecione uma categoria'),
+                onChanged: (newValue) {
+                  _onCategorySelected(newValue!);
+                },
+                items: a
+                    .map((dataItem) =>
+                        dataItem.category) // Extract only the categories
+                    .toSet() // Convert to a set to ensure uniqueness
+                    .map((category) {
+                  return DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+              ),
+              SizedBox(height: 10), // Add some spacing
+              Container(
+                width: double.infinity,
+                height: 300,
+                child: SfCartesianChart(
+                  primaryXAxis: CategoryAxis(),
+                  series: <SplineSeries<SalesData, String>>[
+                    SplineSeries<SalesData, String>(
+                      color: Color.fromARGB(255, 47, 125, 121),
+                      width: 3,
+                      dataSource: chartData,
+                      xValueMapper: (SalesData sales, _) => sales.year,
+                      yValueMapper: (SalesData sales, _) => sales.sales,
+                    ),
+                  ],
+                ),
               ),
             ],
-          ),
-        );
-      }
-    },
-  );
+          );
+        }
+      },
+    );
+  }
+
+  int getMonth(DateTime dateTime) => dateTime.month;
+  int getYear(DateTime dateTime) => dateTime.year;
+  int getDay(DateTime dateTime) => dateTime.day;
+  int getWeek(DateTime dateTime) =>
+      dateTime.weekday; // Note: This returns the day of the week (1-7)
+
+  List<SalesData> getChartData(
+      List<PrincipalData> data,
+      String selectedCategory,
+      bool Function(DateTime, DateTime) dateComparison,
+      String interval) {
+    int Function(DateTime) extractInterval;
+
+    switch (interval) {
+      case 'month':
+        extractInterval = getMonth;
+        break;
+      case 'year':
+        extractInterval = getYear;
+        break;
+      case 'day':
+        extractInterval = getDay;
+        break;
+      case 'week':
+        extractInterval = getWeek;
+        break;
+      default:
+        throw ArgumentError('Invalid interval: $interval');
+    }
+
+    Map<String, double> intervalDataMap = {}; // Map to store interval data
+
+    data.where((dataItem) {
+      return dateComparison(dataItem.dataRegister, DateTime.now()) &&
+          (selectedCategory.isEmpty || dataItem.category == selectedCategory);
+    }).forEach((dataItem) {
+      String intervalValue = extractInterval(dataItem.dataRegister).toString();
+      double amount = double.parse(dataItem.amount);
+
+      intervalDataMap.update(intervalValue, (value) => value + amount,
+          ifAbsent: () => amount);
+    });
+
+    List<SalesData> salesDataList = intervalDataMap.entries.map((entry) {
+      return SalesData(
+        entry.key,
+        entry.value,
+      );
+    }).toList();
+
+    // Sort the salesDataList based on the interval values
+    salesDataList.sort((a, b) => a.year.compareTo(b.year));
+
+    return salesDataList;
+  }
 }
 
-List<SalesData> getChartData(List<PrincipalData> data, bool Function(DateTime, DateTime) dateComparison) {
-  return data.where((dataItem) {
-    return dateComparison(dataItem.dataRegister, DateTime.now());
-  }).map((dataItem) {
-    return SalesData(
-      dataItem.category, // Replace with your x-axis data
-      double.parse(dataItem.amount),   // Replace with your y-axis data
-    );
-  }).toList();
-}
-}
 class SalesData {
   SalesData(this.year, this.sales);
   final String year;

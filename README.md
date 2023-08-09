@@ -12,5 +12,17 @@ Para dúvidas de instalação e uso consultar:
 Com exemplos de execução, configuração de ambiente, etc.
 ## Já desenvolvido
 
-### Versão inicial da tela de Home e menu
-<img src = "images/Status_Projeto.PNG"></img>
+### Tela de Login
+<img src = "images/login.PNG"></img>
+
+### Tela de Home e menu
+<img src = "images/Home.PNG"></img>
+
+### Tela de Estatísticas
+<img src = "images/statistics.PNG"></img>
+
+### Tela de Categorias
+<img src = "images/category.PNG"></img>
+
+### Tela de Configurações
+<img src = "images/settings.PNG"></img>
