@@ -54,7 +54,7 @@ class _Add_ScreenState extends State<Add_Screen> {
 
   Future<List<CategoryData>> getDataFromFirebase() async {
     List<CategoryData> _CategoryDataList = [];
-    String email = await getEmailNameCurrentUser();
+    String? email = await getEmailNameCurrentUser();
 
     try {
       QuerySnapshot querySnapshot =

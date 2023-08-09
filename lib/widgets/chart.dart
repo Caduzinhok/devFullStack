@@ -40,7 +40,7 @@ class _ChartState extends State<Chart> {
 
   Future<List<PrincipalData>> getDataFromFirebase({String? category}) async {
     try {
-      String email = await getEmailNameCurrentUser();
+      String? email = await getEmailNameCurrentUser();
 
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('lancamentos')

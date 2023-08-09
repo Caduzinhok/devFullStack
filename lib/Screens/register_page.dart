@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:managment/Screens/login_page.dart';
 import 'package:provider/provider.dart';
@@ -60,6 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       );
       saveToFirebaseRegister(nameController.text, emailController.text);
+
 
     } on AuthException catch (e) {
       setState(() => loading = false);

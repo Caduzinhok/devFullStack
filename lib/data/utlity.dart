@@ -10,7 +10,7 @@ final box = Hive.box<Add_data>('data');
 
 Future<double> totalLancamentos() async {
   double valorTotal = 0;
-  String email = await getEmailNameCurrentUser();
+  String? email = await getEmailNameCurrentUser();
 
   try {
     final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').where('email', isEqualTo: email).get();
@@ -31,7 +31,7 @@ Future<double> totalLancamentos() async {
 }
 
 Future<double> Renda() async {
-  String email = await getEmailNameCurrentUser();
+  String? email = await getEmailNameCurrentUser();
   try {
     final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').where('email', isEqualTo: email).get();
 
@@ -52,7 +52,7 @@ Future<double> Renda() async {
 }
 
 Future<double> Expenses() async {
-  String email = await getEmailNameCurrentUser();
+  String? email = await getEmailNameCurrentUser();
 
   try {
     final QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('lancamentos').where('email', isEqualTo: email).get();
