@@ -18,12 +18,14 @@ class PrincipalData {
   final String amount;
   final String type;
   final DateTime dataRegister;
+  final String id;
   PrincipalData(
       {required this.category,
       required this.description,
       required this.type,
       required this.amount,
-      required this.dataRegister});
+      required this.dataRegister,
+      required this.id});
 }
 
 class UserData {
@@ -126,6 +128,7 @@ class _HomeState extends State<Home> {
           type: doc['type'],
           amount: doc['amount'],
           dataRegister: (doc['dataRegister'] as Timestamp).toDate(),
+          id: doc.id
         );
 
         // Adiciona o PrincipalData à lista
@@ -141,25 +144,44 @@ class _HomeState extends State<Home> {
   }
 
 
-  Widget getList(List<PrincipalData> principalDataList) {
-    return ListView.builder(
-      itemCount: principalDataList.length,
-      itemBuilder: (context, index) {
-        return Dismissible(
-          key: UniqueKey(),
-          onDismissed: (direction) {
-            // Aqui você pode adicionar a lógica para excluir o item, se necessário.
-            // principalDataList[index].delete();
-          },
-          child: get(principalDataList[index]),
-        );
-      },
-    );
-  }
+Widget getList(List<PrincipalData> principalDataList) {
+  return ListView.builder(
+    itemCount: principalDataList.length,
+    itemBuilder: (context, index) {
+      return Dismissible(
+        key: Key(principalDataList[index].dataRegister.toString()), // Unique key for each item
+        onDismissed: (direction) {
+          // Implement your deletion logic here
+          _deleteItem(principalDataList[index]); // Call the delete function
+        },
+        child: get(principalDataList[index], index),
+      );
+    },
+  );
+}
 
-  ListTile get(PrincipalData principalData) {
-    return ListTile(
-      title: Text(
+void _deleteItem(PrincipalData principalData) async {
+  // Implement your Firestore deletion logic here
+  try {
+    await FirebaseFirestore.instance
+        .collection('lancamentos')
+        .doc(principalData.id)
+        .delete();
+    print('Item deletado');
+
+    setState(() {
+      // Remove the deleted item from your list
+      principalDataList.remove(principalData);
+    });
+  } catch (e) {
+    print('Error deleting item: $e');
+  }
+}
+
+
+ListTile get(PrincipalData principalData, int index) {
+  return ListTile(
+    title: Text(
         principalData.description,
         style: TextStyle(
           fontSize: 17,
@@ -183,16 +205,29 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      trailing: Text(
-        principalData.amount.toString(),
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 19,
-          color: principalData.type == 'Renda' ? Colors.green : Colors.red,
+
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          principalData.amount.toString(),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 19,
+            color: principalData.type == 'Renda' ? Colors.green : Colors.red,
+          ),
         ),
-      ),
-    );
-  }
+        IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: () {
+            _deleteItem(principalData);
+          },
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _head() {
     return FutureBuilder<double>(
