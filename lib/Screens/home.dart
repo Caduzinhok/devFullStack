@@ -247,7 +247,7 @@ ListTile get(PrincipalData principalData, int index) {
                 return FutureBuilder<String?>(
                   future: getDisplayNameCurrentUser(),
                   builder: (context, snapshot) {
-                    String nameUserLogged = snapshot.data ?? "0.0";
+                    String nameUserLogged = snapshot.data ?? "";
                     return Stack(
                       children: [
                         Column(

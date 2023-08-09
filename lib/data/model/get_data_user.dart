@@ -13,12 +13,14 @@ Future<String?> getDisplayNameCurrentUser() async {
           .where('email', isEqualTo: userEmail)
           .get();
 
+      print(snapshot.size);
       // Verifica se o documento com o email do usuário existe e é único
       if (snapshot.size == 1) {
-        // Obtém o nome do usuário a partir do documento
-        String? nomeUsuario = snapshot.docs[0].data()['nome'];
-        String? emailUsuario = snapshot.docs[0].data()['email'];
-
+        // Access the first document in the snapshot
+        Map<String, dynamic> userData = snapshot.docs[0].data();
+        
+        // Get the user's name from the document
+        String? nomeUsuario = userData['name'];
         return nomeUsuario;
 
       } else {
