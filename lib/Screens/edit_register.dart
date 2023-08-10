@@ -160,7 +160,7 @@ class _EditPageState extends State<EditPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
         keyboardType: TextInputType.text,
-        focusNode: nam,
+        focusNode: sen,
         obscureText: true,
         controller: passwordController,
         decoration: InputDecoration(
