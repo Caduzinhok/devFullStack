@@ -1,6 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-  
+
+String documentId = "";
+String nameUser = "";
+String emailUser = "";
+
 Future<String?> getDisplayNameCurrentUser() async {
   try {
     final User? user = FirebaseAuth.instance.currentUser;
@@ -21,6 +25,7 @@ Future<String?> getDisplayNameCurrentUser() async {
         
         // Get the user's name from the document
         String? nomeUsuario = userData['name'];
+        nameUser = nomeUsuario.toString();
         return nomeUsuario;
 
       } else {
@@ -52,10 +57,11 @@ Future<String?> getEmailNameCurrentUser() async {
           .get();
 
       querySnapshot.docs.forEach((DocumentSnapshot doc) {
+        documentId = doc.id;
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         email = data['email'] as String;
       });
-
+      emailUser = email.toString();
       print(email);
       return email;
     } catch (error) {
@@ -66,4 +72,9 @@ Future<String?> getEmailNameCurrentUser() async {
       print('Nenhum email encontrado.');
       return email;
     }
+  }
+
+  String getDocumentId(){
+    getEmailNameCurrentUser();
+    return documentId;
   }

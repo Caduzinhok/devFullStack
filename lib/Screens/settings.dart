@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:managment/Screens/edit_register.dart';
 import 'package:managment/Screens/home.dart';
+import 'package:managment/Screens/register_page.dart';
 import 'package:managment/Services/auth_service.dart';
 import 'package:managment/data/model/get_data_user.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +52,7 @@ class _SettingsState extends State<Settings> {
           SizedBox(height: 50),
           infoUser(),
           SizedBox(height: 30),
-          logout_button(),
+          edit_button(),
         ],
       ),
     );
@@ -129,15 +131,30 @@ class _SettingsState extends State<Settings> {
     }
   }
 
-  Padding logout_button() {
+  Widget person() {
+    return Scaffold(
+      body: Center(
+        child: CircleAvatar(
+          radius: 50, // Tamanho do círculo
+          backgroundColor: Colors.blue, // Cor de fundo do círculo
+          child: Icon(
+            Icons.person, // Ícone de perfil
+            size: 50, // Tamanho do ícone
+            color: Colors.white, // Cor do ícone
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding edit_button() {
     return Padding(
       padding: EdgeInsets.all(24.0),
       child: ElevatedButton(
         onPressed: () {
-          fazerLogout();
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
+            MaterialPageRoute(builder: (context) => EditPage()),
           );
         },
         style: ElevatedButton.styleFrom(
@@ -146,11 +163,11 @@ class _SettingsState extends State<Settings> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.check),
+            Icon(Icons.edit),
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
-                'Fazer Logout',
+                'Editar perfil',
                 style: TextStyle(fontSize: 20),
               ),
             ),
@@ -188,6 +205,27 @@ class _SettingsState extends State<Settings> {
                       },
                       child: Icon(Icons.arrow_back, color: Colors.white),
                     ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: TextButton(
+                        onPressed: () {
+                          fazerLogout();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginPage()),
+                          );
+                        },
+                        style: TextButton.styleFrom(
+                          primary: Colors.white, // Cor do texto do botão
+                        ),
+                        child: Text(
+                            'Fazer logout',
+                            style: TextStyle(color: Colors.white)
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),

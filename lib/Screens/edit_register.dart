@@ -1,108 +1,66 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:managment/Screens/forgot_password.dart';
-import 'package:managment/Screens/register_page.dart';
-import 'package:managment/widgets/menu.dart';
+import 'package:flutter/material.dart';
+import 'package:managment/Screens/login_page.dart';
+import 'package:managment/data/model/get_data_user.dart';
 import 'package:provider/provider.dart';
 import 'package:managment/Services/auth_service.dart';
+import 'package:managment/widgets/menu.dart';
+import 'package:managment/Screens/settings.dart' as app_settings;
+import '../data/model/add_date_new_register.dart';
 
-class LoginPage extends StatefulWidget {
-  LoginPage({Key? key}) : super(key: key);
+final User? user = FirebaseAuth.instance.currentUser;
+
+class EditPage extends StatefulWidget {
+  EditPage({Key? key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _EditPageState createState() => _EditPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _EditPageState extends State<EditPage> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  void _signInWithEmailAndPassword(BuildContext context) async {
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Bottom(),
-        ),
-      );
-      // Login bem-sucedido, você pode navegar para a próxima tela aqui.
-    } catch (e) {
-      _showErrorAlert(context);
-      // Trate erros de autenticação aqui (por exemplo, exiba uma mensagem de erro na tela).
-    }
-  }
-
-  void _showErrorAlert(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'ERRO',
-            style: TextStyle(color: Colors.red),
-          ),
-          content: Text('Usuário ou senha incorreto, por favor verifique.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'FECHAR',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: Colors.red, width: 2),
-          ),
-        );
-      },
-    );
-  }
-  
-  bool isLogin = true;
-  late String titulo;
-  late String actionButton;
-  late String toggleButton;
   bool loading = false;
   FocusNode em = FocusNode();
   FocusNode sen = FocusNode();
+  FocusNode nam = FocusNode();
+
 
   @override
   void initState() {
     super.initState();
-    setFormAction(true);
+    emailController.text = emailUser;
+    nameController.text = nameUser;
   }
 
-  setFormAction(bool acao) {
-    setState(() {
-      isLogin = acao;
-      if (isLogin) {
-        titulo = 'Bem vindo';
-        actionButton = 'Entrar';
-        toggleButton = 'Ainda não tem conta? Cadastre-se agora.';
-      }
-    });
-  }
 
-  login() async {
+  update() async {
+    final _auth = FirebaseAuth.instance;
     setState(() => loading = true);
     try {
-      await context.read<AuthService>().login(emailController.text, passwordController.text);
+      if(nameController.text.isNotEmpty || emailController.text.isNotEmpty){
+        await FirebaseFirestore.instance.collection('cadastro').doc(documentId).update({
+          'name': nameController.text,
+          'email': emailController.text,
+        });
+      }
+      if(emailController.text.isNotEmpty){
+        await _auth.currentUser?.updateEmail(emailController.text);
+      }
+      if(passwordController.text.isNotEmpty){
+        await _auth.currentUser?.updatePassword(passwordController.text);
+      }
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => Bottom(), // Substitua "NextScreen" pelo nome da próxima tela.
+          builder: (context) => app_settings.Settings(), // Substitua "NextScreen" pelo nome da próxima tela.
         ),
       );
+
     } on AuthException catch (e) {
       setState(() => loading = false);
       ScaffoldMessenger.of(context)
@@ -139,15 +97,15 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         children: [
           SizedBox(height: 50),
+          setName(),
+          SizedBox(height: 30),
           setEmail(),
           SizedBox(height: 30),
-          setSenha(),
+          setPassword(),
           SizedBox(height: 30),
           save(),
           SizedBox(height: 30),
           textButton(),
-          SizedBox(height: 30),
-          textButton2(),
         ],
       ),
     );
@@ -175,12 +133,35 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Padding setSenha() {
+  Padding setName() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextField(
+        keyboardType: TextInputType.text,
+        focusNode: nam,
+        controller: nameController,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          labelText: 'Nome',
+          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+        ),
+      ),
+    );
+  }
+
+  Padding setPassword() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        keyboardType: TextInputType.text,
+        focusNode: nam,
         obscureText: true,
-        focusNode: sen,
         controller: passwordController,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
@@ -196,24 +177,8 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-  Padding textButton(){
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: TextButton(
-          onPressed: () {
-            // Ação ao pressionar o TextButton
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => RegisterPage()),
-            );
-            isLogin = false;
-          },
-          child: Text('Ainda não tem conta? Cadastre-se agora.'),
-        ),
-    );
-  }
 
-  Padding textButton2(){
+  Padding textButton(){
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextButton(
@@ -221,22 +186,27 @@ class _LoginPageState extends State<LoginPage> {
           // Ação ao pressionar o TextButton
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+            MaterialPageRoute(builder: (context) => app_settings.Settings()),
           );
-          isLogin = false;
         },
-        child: Text('Esqueci minha senha'),
+        child: Text('Voltar à tela de configurações'),
       ),
     );
   }
-
   Padding save() {
     return Padding(
       padding: EdgeInsets.all(24.0),
+
       child: ElevatedButton(
         onPressed: () {
-            setFormAction(!isLogin);
-            login();
+          update();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => app_settings.Settings()),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Dados atualizados com sucesso!')),
+          );
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Color(0xff368983), // Cor verde definida por hexadecimal
@@ -261,7 +231,7 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
-                actionButton,
+                'Salvar',
                 style: TextStyle(fontSize: 20),
               ),
             ),
@@ -303,14 +273,14 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  child: Text(
-                    'Login',
-                    style: TextStyle(fontSize: 20.0,
-                                  color: Color.fromARGB(255, 255, 255, 255)),
-                  ),
-                )
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Text(
+                      'Atualização de cadastro',
+                      style: TextStyle(fontSize: 20.0,
+                          color: Color.fromARGB(255, 255, 255, 255)),
+                    ),
+                  )
               )
             ],
           ),

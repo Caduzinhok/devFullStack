@@ -1,112 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:managment/Screens/forgot_password.dart';
+import 'package:managment/Screens/login_page.dart';
 import 'package:managment/Screens/register_page.dart';
 import 'package:managment/widgets/menu.dart';
 import 'package:provider/provider.dart';
 import 'package:managment/Services/auth_service.dart';
 
-class LoginPage extends StatefulWidget {
-  LoginPage({Key? key}) : super(key: key);
+class ForgotPasswordPage extends StatefulWidget {
+  ForgotPasswordPage({Key? key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
-  void _signInWithEmailAndPassword(BuildContext context) async {
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Bottom(),
-        ),
-      );
-      // Login bem-sucedido, você pode navegar para a próxima tela aqui.
-    } catch (e) {
-      _showErrorAlert(context);
-      // Trate erros de autenticação aqui (por exemplo, exiba uma mensagem de erro na tela).
-    }
-  }
-
-  void _showErrorAlert(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'ERRO',
-            style: TextStyle(color: Colors.red),
-          ),
-          content: Text('Usuário ou senha incorreto, por favor verifique.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'FECHAR',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: Colors.red, width: 2),
-          ),
-        );
-      },
-    );
-  }
-  
-  bool isLogin = true;
-  late String titulo;
-  late String actionButton;
-  late String toggleButton;
   bool loading = false;
   FocusNode em = FocusNode();
-  FocusNode sen = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    setFormAction(true);
   }
 
-  setFormAction(bool acao) {
-    setState(() {
-      isLogin = acao;
-      if (isLogin) {
-        titulo = 'Bem vindo';
-        actionButton = 'Entrar';
-        toggleButton = 'Ainda não tem conta? Cadastre-se agora.';
-      }
-    });
-  }
-
-  login() async {
-    setState(() => loading = true);
+  _resetPassword(BuildContext context) async {
     try {
-      await context.read<AuthService>().login(emailController.text, passwordController.text);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Bottom(), // Substitua "NextScreen" pelo nome da próxima tela.
-        ),
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+          email: emailController.text);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(
+            'E-mail de redefinição de senha enviado com sucesso!')),
       );
-    } on AuthException catch (e) {
-      setState(() => loading = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao enviar o e-mail de redefinição: $e')),
+      );
     }
   }
 
@@ -139,15 +69,13 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         children: [
           SizedBox(height: 50),
-          setEmail(),
+          info(),
           SizedBox(height: 30),
-          setSenha(),
+          setEmail(),
           SizedBox(height: 30),
           save(),
           SizedBox(height: 30),
           textButton(),
-          SizedBox(height: 30),
-          textButton2(),
         ],
       ),
     );
@@ -175,45 +103,17 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Padding setSenha() {
+  Padding info() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TextField(
-        obscureText: true,
-        focusNode: sen,
-        controller: passwordController,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-          labelText: 'Senha',
-          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
-        ),
+      padding: const EdgeInsets.only(bottom: 5),
+      child: Text(
+       'Insira o e-mail para recuperação da sua senha.',
+        style: TextStyle(fontSize: 14, color: Colors.black),
       ),
     );
   }
-  Padding textButton(){
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: TextButton(
-          onPressed: () {
-            // Ação ao pressionar o TextButton
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => RegisterPage()),
-            );
-            isLogin = false;
-          },
-          child: Text('Ainda não tem conta? Cadastre-se agora.'),
-        ),
-    );
-  }
 
-  Padding textButton2(){
+  Padding textButton(){
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextButton(
@@ -221,11 +121,10 @@ class _LoginPageState extends State<LoginPage> {
           // Ação ao pressionar o TextButton
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+            MaterialPageRoute(builder: (context) => LoginPage()),
           );
-          isLogin = false;
         },
-        child: Text('Esqueci minha senha'),
+        child: Text('Voltar ao login'),
       ),
     );
   }
@@ -235,8 +134,11 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.all(24.0),
       child: ElevatedButton(
         onPressed: () {
-            setFormAction(!isLogin);
-            login();
+          _resetPassword(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Color(0xff368983), // Cor verde definida por hexadecimal
@@ -261,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
-                actionButton,
+                'Redefinir senha',
                 style: TextStyle(fontSize: 20),
               ),
             ),
@@ -303,14 +205,14 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Center(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  child: Text(
-                    'Login',
-                    style: TextStyle(fontSize: 20.0,
-                                  color: Color.fromARGB(255, 255, 255, 255)),
-                  ),
-                )
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Text(
+                      'Redefinição de senha',
+                      style: TextStyle(fontSize: 20.0,
+                          color: Color.fromARGB(255, 255, 255, 255)),
+                    ),
+                  )
               )
             ],
           ),
