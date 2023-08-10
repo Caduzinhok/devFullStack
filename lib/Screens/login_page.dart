@@ -139,6 +139,8 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         children: [
           SizedBox(height: 50),
+          textLogin(),
+          SizedBox(height: 30),
           setEmail(),
           SizedBox(height: 30),
           setSenha(),
@@ -213,6 +215,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Padding textLogin(){
+    return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Text(
+          'Login',
+          style: TextStyle(fontSize: 18, color: Color(0xff368983), fontWeight: FontWeight.bold),
+        ),
+    );
+  }
   Padding textButton2(){
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -292,23 +303,17 @@ class _LoginPageState extends State<LoginPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Icon(Icons.arrow_back, color: Colors.white),
-                    ),
-                  ],
                 ),
               ),
               Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30),
                   child: Text(
-                    'Login',
-                    style: TextStyle(fontSize: 20.0,
-                                  color: Color.fromARGB(255, 255, 255, 255)),
+                    'FinanceHub',
+                    style: TextStyle(color: Colors.white,
+                        fontFamily: 'Inter',
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold),
                   ),
                 )
               )

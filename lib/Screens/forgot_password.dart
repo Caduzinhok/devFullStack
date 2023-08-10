@@ -70,11 +70,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         children: [
           SizedBox(height: 50),
           info(),
-          SizedBox(height: 30),
+          SizedBox(height: 5),
           setEmail(),
-          SizedBox(height: 30),
+          SizedBox(height: 20),
           save(),
-          SizedBox(height: 30),
+          SizedBox(height: 20),
           textButton(),
         ],
       ),
@@ -108,7 +108,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       padding: const EdgeInsets.only(bottom: 5),
       child: Text(
        'Insira o e-mail para recuperação da sua senha.',
-        style: TextStyle(fontSize: 14, color: Colors.black),
+        style: TextStyle(fontSize: 14, color: Color(0xff368983), fontWeight: FontWeight.w800),
       ),
     );
   }

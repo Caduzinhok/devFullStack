@@ -6,6 +6,7 @@ import 'package:managment/Screens/home.dart';
 import 'package:managment/Screens/register_page.dart';
 import 'package:managment/Services/auth_service.dart';
 import 'package:managment/data/model/get_data_user.dart';
+import 'package:managment/widgets/menu.dart';
 import 'package:provider/provider.dart';
 
 import 'login_page.dart';
@@ -200,8 +201,13 @@ class _SettingsState extends State<Settings> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
+
                       onTap: () {
                         Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Bottom()),
+                        );
                       },
                       child: Icon(Icons.arrow_back, color: Colors.white),
                     ),
@@ -232,11 +238,6 @@ class _SettingsState extends State<Settings> {
               Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 30),
-                    child: Text(
-                      'Configurações',
-                      style: TextStyle(fontSize: 20.0,
-                          color: Color.fromARGB(255, 255, 255, 255)),
-                    ),
                   )
               )
             ],

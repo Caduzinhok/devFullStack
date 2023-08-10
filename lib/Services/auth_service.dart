@@ -28,7 +28,10 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  registrar(String email, String senha, String nome) async {
+  registrar(String email, String senha, String confirmSenha, String nome) async {
+    if(senha != confirmSenha){
+      throw AuthException('As senhas não coincidem');
+    }
     try {
       await _auth.createUserWithEmailAndPassword(email: email, password: senha);
       _getUser();

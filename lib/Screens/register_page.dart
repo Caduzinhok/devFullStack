@@ -18,12 +18,14 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController passwordConfirmController = TextEditingController();
 
   bool isLogin = true;
   late String titulo;
   bool loading = false;
   FocusNode em = FocusNode();
   FocusNode sen = FocusNode();
+  FocusNode sen2 = FocusNode();
   FocusNode nam = FocusNode();
   late String actionButton;
   late String toggleButton;
@@ -52,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
   registrar() async {
     setState(() => loading = true);
     try {
-      await context.read<AuthService>().registrar(emailController.text, passwordController.text, nameController.text);
+      await context.read<AuthService>().registrar(emailController.text, passwordController.text, passwordConfirmController.text, nameController.text);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -103,6 +105,8 @@ class _RegisterPageState extends State<RegisterPage> {
           setEmail(),
           SizedBox(height: 30),
           setSenha(),
+          SizedBox(height: 30),
+          confirmSenha(),
           SizedBox(height: 30),
           save(),
           SizedBox(height: 30),
@@ -177,6 +181,29 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+
+  Padding confirmSenha() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        obscureText: true,
+        focusNode: sen2,
+        controller: passwordConfirmController,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          labelText: 'Confirme a sua senha',
+          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+        ),
+      ),
+    );
+  }
+
   Padding textButton(){
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
